@@ -1,2 +1,2 @@
-# new
+# Aplikasi absensi untuk SMK Yadika
  

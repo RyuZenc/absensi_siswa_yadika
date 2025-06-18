@@ -11,20 +11,25 @@
     <div class="mb-8 p-4 bg-blue-50 rounded-lg">
         <h3 class="font-semibold text-lg mb-2">Absensi dengan Kode</h3>
 
-        {{-- Tampilkan kode jika ada DAN masih berlaku --}}
-        @if ($sesiAbsen->kode_absen && \Carbon\Carbon::now()->isBefore($sesiAbsen->berlaku_hingga))
+        <!-- Kontainer untuk kode yang aktif (awalnya disembunyikan jika tidak ada kode aktif) -->
+        <div id="kode-aktif-container" @if (!$sesiAbsen->kode_absen || \Carbon\Carbon::now()->isAfter($sesiAbsen->berlaku_hingga)) style="display: none;" @endif
+            data-waktu-berlaku="{{ $sesiAbsen->berlaku_hingga->toIso8601String() }}">
+
             <p class="text-gray-700">Kode yang sedang aktif:</p>
             <p class="text-4xl font-mono font-bold text-center my-4 p-4 bg-white rounded tracking-widest">
                 {{ $sesiAbsen->kode_absen }}
             </p>
-            <p class="text-sm text-center text-gray-600">
-                Kode berlaku hingga: {{ $sesiAbsen->berlaku_hingga->format('H:i:s') }}
+            <p id="countdown-timer" class="text-base text-center text-gray-700 font-semibold">
+                <!-- Timer akan diisi oleh JavaScript -->
             </p>
-        @else
-            {{-- Tampilkan form untuk membuat kode baru jika tidak ada kode atau sudah kedaluwarsa --}}
+        </div>
+
+        <!-- Kontainer untuk form buat kode baru (awalnya disembunyikan jika ada kode aktif) -->
+        <div id="form-buat-kode-container" @if ($sesiAbsen->kode_absen && \Carbon\Carbon::now()->isBefore($sesiAbsen->berlaku_hingga)) style="display: none;" @endif>
+
             <p class="text-gray-700 mb-2">Buat kode unik agar siswa dapat melakukan absensi mandiri.</p>
             <form action="{{ route('guru.absensi.createCode', $sesiAbsen->id) }}" method="POST"
-                class="flex items-center space-x-4">
+                class="flex items-end space-x-4">
                 @csrf
                 <div>
                     <label for="durasi" class="block text-sm font-medium text-gray-700">Durasi (menit)</label>
@@ -33,14 +38,12 @@
                     @error('durasi')
                         <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                     @enderror
-
-                    <button type="submit"
-                        class="flex-grow bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded self-end">Buat
-                        Kode Baru</button>
                 </div>
-
+                <button type="submit"
+                    class="flex-grow bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Buat Kode
+                    Baru</button>
             </form>
-        @endif
+        </div>
     </div>
 
     <!-- Opsi Absensi Manual -->
@@ -88,4 +91,38 @@
             </div>
         </form>
     </div>
+
+    {{-- PUSH SCRIPT --}}
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const kodeContainer = document.getElementById('kode-aktif-container');
+                const formContainer = document.getElementById('form-buat-kode-container');
+                const countdownElement = document.getElementById('countdown-timer');
+
+                if (kodeContainer && countdownElement && kodeContainer.style.display !== 'none') {
+                    const waktuBerlaku = new Date(kodeContainer.dataset.waktuBerlaku).getTime();
+
+                    const countdownInterval = setInterval(function() {
+                        const sekarang = new Date().getTime();
+                        const sisaWaktu = waktuBerlaku - sekarang;
+
+                        if (sisaWaktu > 0) {
+                            const menit = Math.floor((sisaWaktu % (1000 * 60 * 60)) / (1000 * 60));
+                            const detik = Math.floor((sisaWaktu % (1000 * 60)) / 1000);
+                            countdownElement.textContent =
+                                `Sisa Waktu: ${String(menit).padStart(2, '0')}:${String(detik).padStart(2, '0')}`;
+                        } else {
+                            clearInterval(countdownInterval);
+                            countdownElement.textContent = 'Waktu habis!';
+
+                            // Secara dinamis menyembunyikan kode dan menampilkan form
+                            kodeContainer.style.display = 'none';
+                            formContainer.style.display = 'block';
+                        }
+                    }, 1000);
+                }
+            });
+        </script>
+    @endpush
 </x-app-layout>

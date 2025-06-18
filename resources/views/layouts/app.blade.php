@@ -14,6 +14,7 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 </head>
 
 <body class="font-sans antialiased">
@@ -122,6 +123,7 @@
         setInterval(updateClock, 1000);
         updateClock(); // Panggil sekali saat halaman dimuat
     </script>
+    @stack('scripts')
 </body>
 
 </html>

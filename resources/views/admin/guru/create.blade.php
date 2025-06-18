@@ -1,0 +1,58 @@
+<x-app-layout>
+    @section('header', 'Tambah Guru Baru')
+
+    <form action="{{ route('admin.guru.store') }}" method="POST">
+        @csrf
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="nama_lengkap" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                <input type="text" name="nama_lengkap" id="nama_lengkap"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value="{{ old('nama_lengkap') }}"
+                    required>
+                @error('nama_lengkap')
+                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div>
+                <label for="nip" class="block text-sm font-medium text-gray-700">NIP</label>
+                <input type="text" name="nip" id="nip"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value="{{ old('nip') }}" required>
+                @error('nip')
+                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" name="email" id="email"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value="{{ old('email') }}" required>
+                @error('email')
+                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div>
+                <!-- Spacer -->
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" name="password" id="password"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                @error('password')
+                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <div>
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Konfirmasi
+                    Password</label>
+                <input type="password" name="password_confirmation" id="password_confirmation"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+            </div>
+        </div>
+
+        <div class="mt-6 flex justify-end">
+            <a href="{{ route('admin.guru.index') }}"
+                class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2">Batal</a>
+            <button type="submit"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Simpan</button>
+        </div>
+    </form>
+</x-app-layout>

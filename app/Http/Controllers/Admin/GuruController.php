@@ -1,0 +1,96 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\Guru;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
+
+class GuruController extends Controller
+{
+    public function index()
+    {
+        $gurus = Guru::with('user')->get();
+        return view('admin.guru.index', compact('gurus'));
+    }
+
+    public function create()
+    {
+        return view('admin.guru.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nama_lengkap' => ['required', 'string', 'max:255'],
+            'nip' => ['required', 'string', 'max:255', 'unique:gurus'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        DB::transaction(function () use ($request) {
+            $user = User::create([
+                'name' => $request->nama_lengkap,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => 'guru',
+            ]);
+
+            $user->guru()->create([
+                'nama_lengkap' => $request->nama_lengkap,
+                'nip' => $request->nip,
+            ]);
+        });
+
+        return redirect()->route('admin.guru.index')->with('success', 'Data guru baru berhasil ditambahkan.');
+    }
+
+    public function edit(Guru $guru)
+    {
+        return view('admin.guru.edit', compact('guru'));
+    }
+
+    public function update(Request $request, Guru $guru)
+    {
+        $request->validate([
+            'nama_lengkap' => ['required', 'string', 'max:255'],
+            'nip' => ['required', 'string', 'max:255', 'unique:gurus,nip,' . $guru->id],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $guru->user_id],
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        DB::transaction(function () use ($request, $guru) {
+            $guru->user()->update([
+                'name' => $request->nama_lengkap,
+                'email' => $request->email,
+            ]);
+
+            if ($request->filled('password')) {
+                $guru->user()->update([
+                    'password' => Hash::make($request->password)
+                ]);
+            }
+
+            $guru->update([
+                'nama_lengkap' => $request->nama_lengkap,
+                'nip' => $request->nip,
+            ]);
+        });
+
+        return redirect()->route('admin.guru.index')->with('success', 'Data guru berhasil diperbarui.');
+    }
+
+    public function destroy(Guru $guru)
+    {
+        DB::transaction(function () use ($guru) {
+            $guru->user()->delete();
+            $guru->delete();
+        });
+
+        return redirect()->route('admin.guru.index')->with('success', 'Data guru berhasil dihapus.');
+    }
+}

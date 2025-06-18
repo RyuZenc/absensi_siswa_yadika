@@ -1,0 +1,85 @@
+<x-app-layout>
+    @section('header', 'Tambah Jadwal Baru')
+
+    <form action="{{ route('admin.jadwal.store') }}" method="POST">
+        @csrf
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Kelas -->
+            <div>
+                <label for="kelas_id" class="block text-sm font-medium text-gray-700">Kelas</label>
+                <select name="kelas_id" id="kelas_id"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    @foreach ($kelas as $k)
+                        <option value="{{ $k->id }}">{{ $k->nama_kelas }}</option>
+                    @endforeach
+                </select>
+                @error('kelas_id')
+                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <!-- Mapel -->
+            <div>
+                <label for="mapel_id" class="block text-sm font-medium text-gray-700">Mata Pelajaran</label>
+                <select name="mapel_id" id="mapel_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    @foreach ($mapels as $mapel)
+                        <option value="{{ $mapel->id }}">{{ $mapel->nama_mapel }}</option>
+                    @endforeach
+                </select>
+                @error('mapel_id')
+                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <!-- Guru -->
+            <div>
+                <label for="guru_id" class="block text-sm font-medium text-gray-700">Guru</label>
+                <select name="guru_id" id="guru_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    @foreach ($gurus as $guru)
+                        <option value="{{ $guru->id }}">{{ $guru->nama_lengkap }}</option>
+                    @endforeach
+                </select>
+                @error('guru_id')
+                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <!-- Hari -->
+            <div>
+                <label for="hari" class="block text-sm font-medium text-gray-700">Hari</label>
+                <select name="hari" id="hari" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    <option>Senin</option>
+                    <option>Selasa</option>
+                    <option>Rabu</option>
+                    <option>Kamis</option>
+                    <option>Jumat</option>
+                </select>
+                @error('hari')
+                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <!-- Jam Mulai -->
+            <div>
+                <label for="jam_mulai" class="block text-sm font-medium text-gray-700">Jam Mulai</label>
+                <input type="time" name="jam_mulai" id="jam_mulai"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                @error('jam_mulai')
+                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            <!-- Jam Selesai -->
+            <div>
+                <label for="jam_selesai" class="block text-sm font-medium text-gray-700">Jam Selesai</label>
+                <input type="time" name="jam_selesai" id="jam_selesai"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                @error('jam_selesai')
+                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+        </div>
+
+        <div class="mt-6 flex justify-end">
+            <a href="{{ route('admin.jadwal.index') }}"
+                class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2">Batal</a>
+            <button type="submit"
+                class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2">Simpan</button>
+        </div>
+    </form>
+</x-app-layout>

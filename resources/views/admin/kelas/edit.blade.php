@@ -19,8 +19,13 @@
                 <span class="text-red-500 text-sm">{{ $message }}</span>
             @enderror
         </div>
-        <div class="mt-6 flex justify-end">
-            <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded">Update</button>
+        <div class="mt-6 d-flex justify-content-end">
+            <a href="{{ route('admin.kelas.index') }}" class="btn btn-secondary btn-sm me-2 rounded-md">
+                Batal
+            </a>
+            <button type="submit" class="btn btn-danger btn-sm rounded-md">
+                Update
+            </button>
         </div>
     </form>
 </x-app-layout>

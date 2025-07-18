@@ -1,6 +1,6 @@
 <x-app-layout>
     @section('header', 'Dashboard Siswa')
-
+    <h2 class="font-semibold mb-6">Selamat Datang, {{ Auth::user()->name }}!</h2>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Kolom Utama (Jadwal & Riwayat) -->
         <div class="lg:col-span-2 space-y-8">

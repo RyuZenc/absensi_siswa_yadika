@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
@@ -14,6 +15,17 @@ use App\Http\Controllers\Siswa\AbsensiController as SiswaAbsensiController;
 
 // Route untuk halaman awal
 Route::get('/', function () {
+    if (Auth::check()) {
+        $user = Auth::user();
+
+        return match ($user->role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'guru' => redirect()->route('guru.dashboard'),
+            'siswa' => redirect()->route('siswa.dashboard'),
+            default => redirect()->route('dashboard'),
+        };
+    }
+
     return view('welcome');
 });
 

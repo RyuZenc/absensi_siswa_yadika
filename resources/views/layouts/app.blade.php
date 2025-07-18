@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name') }}</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -19,8 +19,8 @@
 <body class="font-sans antialiased">
     <div class="flex h-screen bg-gray-100" x-data="{ isSidebarOpen: JSON.parse(localStorage.getItem('sidebarOpen') || 'true') }" x-init="$watch('isSidebarOpen', value => localStorage.setItem('sidebarOpen', JSON.stringify(value)))">
 
-        <aside class="flex flex-col bg-gray-800 text-white p-4 transition-[width] duration-300 shrink-0"
-            :class="isSidebarOpen ? 'w-64' : 'w-20'">
+        <aside class="flex flex-col text-white p-4 transition-[width] duration-300 shrink-0"
+            :class="isSidebarOpen ? 'w-64' : 'w-20'" style="background-color:rgb(56, 69, 70)">
 
             <div class="flex items-center shrink-0" :class="isSidebarOpen ? 'justify-between' : 'justify-center'">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-3" x-show="isSidebarOpen">

@@ -1,67 +1,116 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="id">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <title>Login - Sistem Absensi</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #CBDDD6FF;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
 
-    <title>Sistem Absensi Siswa</title>
+        .logo {
+            width: 300px;
+            margin-bottom: 10px;
+        }
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1d3557;
+        }
 
-    <!-- Styles (Using Tailwind CSS CDN for simplicity in this file) -->
-    <script src="https://cdn.tailwindcss.com"></script>
+        .subtitle {
+            color: #4caf50;
+            font-weight: bold;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+
+        .login-card {
+            background-color: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 480px;
+            margin-bottom: 20px;
+        }
+
+        .btn-role {
+            font-size: 16px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .btn-orange {
+            background-color: #f9a825;
+            color: white;
+        }
+
+        .btn-orange:hover {
+            background-color: #f57f17;
+        }
+
+        .info-box {
+            background-color: #ffffff;
+            border-left: 5px solid #0d6efd;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 480px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .info-box h6 {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #0d6efd;
+        }
+    </style>
 </head>
 
-<body class="font-sans antialiased bg-gray-100">
-    <div class="relative min-h-screen flex flex-col items-center justify-center">
+<body>
 
-        <!-- Navigation Bar -->
-        <div class="absolute top-0 right-0 p-6 text-right">
-            @auth
-                <!-- Jika pengguna sudah login -->
-                <a href="{{ url('/dashboard') }}"
-                    class="font-semibold text-gray-600 hover:text-gray-900 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500 mr-4">Dashboard</a>
-
-                <!-- Form untuk Tombol Logout -->
-                <form action="{{ route('logout') }}" method="POST" class="inline">
-                    @csrf
-                    <button type="submit"
-                        class="font-semibold text-gray-600 hover:text-gray-900 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">
-                        Logout
-                    </button>
-                </form>
-            @endauth
-        </div>
-
-        <!-- Main Content -->
-        <div class="max-w-7xl mx-auto p-6 lg:p-8 text-center">
-            <div class="flex justify-center">
-                <!-- Anda bisa mengganti ini dengan logo sekolah -->
-                <svg class="h-16 w-auto text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-
-            <div class="mt-8">
-                <h1 class="text-4xl font-bold text-gray-900">Selamat Datang di Sistem Absensi</h1>
-                <p class="mt-4 text-lg text-gray-600">
-                    Aplikasi untuk mengelola kehadiran siswa secara modern, cepat, dan efisien.
-                </p>
-            </div>
-
-            <div class="mt-10">
-                <a href="{{ Auth::check() ? url('/dashboard') : route('login') }}"
-                    class="inline-block bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300">
-                    Mulai
-                </a>
-            </div>
-        </div>
+    <div class="text-center mb-4">
+        <img src="{{ asset('matrix-admin/assets/images/sma-yadika-5.png') }}" alt="logo" class="logo">
     </div>
+
+    <div class="login-card text-center">
+        <div class="title mb-4">Selamat Datang di Sistem Absensi</div>
+        <p class="mb-2 text-secondary">Silakan pilih peran Anda untuk melanjutkan:</p>
+
+        <a href="{{ route('login.siswa') }}" class="btn btn-orange btn-role w-100">
+            <i class="bi bi-person-fill me-2"></i> Login Siswa
+        </a>
+        <a href="{{ route('login.guru') }}" class="btn btn-success btn-role w-100">
+            <i class="bi bi-person-badge-fill me-2"></i> Login Guru
+        </a>
+        <a href="{{ route('login.admin') }}" class="btn btn-outline-primary btn-role w-100">
+            <i class="bi bi-person-workspace me-2"></i> Data Dashboard
+        </a>
+    </div>
+
+    <!-- Kotak Informasi -->
+    <div class="info-box">
+        <h6><i class="bi bi-info-circle-fill me-1"></i> Informasi</h6>
+        <ul class="mb-0 ps-3">
+            <li>Pastikan Anda menggunakan akun yang sesuai dengan peran Anda.</li>
+            <li>Hubungi admin jika mengalami masalah saat login.</li>
+            <li>Absensi hanya bisa dilakukan pada jam yang telah ditentukan.</li>
+        </ul>
+    </div>
+
 </body>
 
 </html>

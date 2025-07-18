@@ -19,7 +19,7 @@
 
 <body class="font-sans antialiased">
     <div class="min-h-screen bg-gray-100">
-        <div class="flex flex-col md:flex-row">
+        <div class="min-h-screen flex">
             <!-- Sidebar -->
             <aside class="w-full md:w-64 bg-gray-800 text-white p-4">
                 <a href="{{ route('dashboard') }}">

@@ -13,17 +13,24 @@
         </div>
         <div class="mt-4">
             <label for="tingkat">Tingkat</label>
-            <input type="text" name="tingkat" id="tingkat" class="mt-1 block w-full rounded-md border-gray-300"
-                value="{{ old('tingkat', $kelas->tingkat) }}" required>
+            <select name="tingkat" id="tingkat" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                required>
+                <option value="">Pilih Tingkat</option>
+                @foreach ($tingkats as $tingkat_option)
+                    <option value="{{ $tingkat_option }}"
+                        {{ old('tingkat', $kelas->tingkat) == $tingkat_option ? 'selected' : '' }}>
+                        {{ $tingkat_option }}
+                    </option>
+                @endforeach
+            </select>
             @error('tingkat')
                 <span class="text-red-500 text-sm">{{ $message }}</span>
             @enderror
         </div>
-        <div class="mt-6 d-flex justify-content-end">
-            <a href="{{ route('admin.kelas.index') }}" class="btn btn-secondary btn-sm me-2 rounded-md">
-                Batal
-            </a>
-            <button type="submit" class="btn btn-danger btn-sm rounded-md">
+        <div class="mt-2 flex justify-end gap-2">
+            <a href="{{ route('admin.kelas.index') }}"
+                class="btn btn-primary rounded-md py-2 px-6 text-base font-semibold">Batal</a>
+            <button type="submit" class="btn btn-primary rounded-md py-2 px-6 text-base font-semibold">
                 Update
             </button>
         </div>

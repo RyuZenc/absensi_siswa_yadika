@@ -9,13 +9,30 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use App\Imports\GuruImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GuruController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $gurus = Guru::with('user')->get();
-        return view('admin.guru.index', compact('gurus'));
+        $search = $request->input('search');
+        $query = Guru::with('user');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_lengkap', 'like', "%{$search}%")
+                    ->orWhere('nip', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('email', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $gurus = $query->paginate(15);
+        $gurus->appends(['search' => $search]);
+
+        return view('admin.guru.index', compact('gurus', 'search'));
     }
 
     public function create()
@@ -84,13 +101,32 @@ class GuruController extends Controller
         return redirect()->route('admin.guru.index')->with('success', 'Data guru berhasil diperbarui.');
     }
 
-    public function destroy(Guru $guru)
+    public function destroy(Request $request, Guru $guru)
     {
         DB::transaction(function () use ($guru) {
             $guru->user()->delete();
             $guru->delete();
         });
 
-        return redirect()->route('admin.guru.index')->with('success', 'Data guru berhasil dihapus.');
+        return redirect()->route('admin.guru.index', ['search' => $request->input('search')])
+            ->with('success', 'Data guru berhasil dihapus.');
+    }
+
+    /**
+     * Method untuk mengimpor data guru dari file CSV.
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:csv,txt'
+        ]);
+
+        try {
+            Excel::import(new GuruImport, $request->file('file'));
+        } catch (\Exception $e) {
+            return redirect()->route('admin.guru.index')->with('error', 'Gagal mengimpor data. Pastikan format file CSV sudah benar dan tidak ada data duplikat. Error: ' . $e->getMessage());
+        }
+
+        return redirect()->route('admin.guru.index')->with('success', 'Data guru berhasil diimpor!');
     }
 }

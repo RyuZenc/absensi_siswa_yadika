@@ -50,8 +50,12 @@
                 <input type="password" name="password_confirmation" class="mt-1 block w-full rounded-md" required>
             </div>
         </div>
-        <div class="mt-6 flex justify-end">
-            <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded">Simpan</button>
+        <div class="mt-2 flex justify-end gap-2">
+            <a href="{{ route('admin.siswa.index') }}"
+                class="btn btn-primary rounded-md py-2 px-6 text-base font-semibold">Batal</a>
+            <button type="submit" class="btn btn-primary rounded-md py-2 px-6 text-base font-semibold">
+                Simpan
+            </button>
         </div>
     </form>
 </x-app-layout>

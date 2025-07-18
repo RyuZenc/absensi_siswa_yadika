@@ -39,14 +39,14 @@
         <header class="topbar" data-navbarbg="skin5">
             <nav class="navbar top-navbar navbar-expand-md navbar-dark">
                 <div class="navbar-header" data-logobg="skin5">
-                    <a class="navbar-brand" href="{{ route('dashboard') }}">
-                        <b class="logo-icon ps-2">
-                            <img src="{{ asset('matrix-admin/assets/images/logo-icon.png') }}" alt="homepage"
-                                class="light-logo" width="25" />
+                    <a class="navbar-brand d-flex align-items-center" href="{{ route('dashboard') }}">
+                        <b class="logo-icon p-md-0">
+                            <img src="{{ asset('matrix-admin/assets/images/sma-yadika-logo.png') }}" alt="logo"
+                                class="light-logo" style="height: 50px;" />
                         </b>
                         <span class="logo-text ms-2">
-                            <img src="{{ asset('matrix-admin/assets/images/logo-text.png') }}" alt="homepage"
-                                class="light-logo" />
+                            <img src="{{ asset('matrix-admin/assets/images/sma-yadika-text.png') }}" alt="text-logo"
+                                class="light-logo" style="height: 50px;" />
                         </span>
                     </a>
                     <a class="nav-toggler waves-effect waves-light d-block d-md-none" href="javascript:void(0)">
@@ -54,12 +54,17 @@
                     </a>
                 </div>
 
-                <div class="navbar-collapse collapse d-flex justify-content-between align-items-center"
-                    id="navbarSupportedContent" data-navbarbg="skin5">
+                <div class="navbar-collapse collapse" id="navbarSupportedContent" data-navbarbg="skin5">
                     <ul class="navbar-nav float-start me-auto">
-                        {{-- Empty --}}
+                        <li class="nav-item d-none d-lg-block">
+                            <a class="nav-link sidebartoggler waves-effect waves-light" href="javascript:void(0)"
+                                data-sidebartype="mini-sidebar">
+                                <i class="mdi mdi-menu font-24"></i>
+                            </a>
+                        </li>
                     </ul>
-                    <ul class="navbar-nav float-end d-flex align-items-center">
+
+                    <ul class="navbar-nav float-end">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-muted waves-effect waves-dark pro-pic d-flex align-items-center"
                                 href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
@@ -98,12 +103,14 @@
                             <li class="sidebar-item"><a href="{{ route('admin.kelas.index') }}" class="sidebar-link"><i
                                         class="mdi mdi-school"></i><span class="hide-menu">Manajemen Kelas</span></a>
                             </li>
-                            <li class="sidebar-item"><a href="{{ route('admin.mapel.index') }}" class="sidebar-link"><i
-                                        class="mdi mdi-book-open-variant"></i><span class="hide-menu">Manajemen
+                            <li class="sidebar-item"><a href="{{ route('admin.mapel.index') }}"
+                                    class="sidebar-link"><i class="mdi mdi-book-open-variant"></i><span
+                                        class="hide-menu">Manajemen
                                         Mapel</span></a></li>
                             <li class="sidebar-item"><a href="{{ route('admin.guru.index') }}"
                                     class="sidebar-link"><i class="mdi mdi-account-star"></i><span
-                                        class="hide-menu">Manajemen Guru</span></a></li>
+                                        class="hide-menu">Manajemen
+                                        Guru</span></a></li>
                             <li class="sidebar-item"><a href="{{ route('admin.siswa.index') }}"
                                     class="sidebar-link"><i class="mdi mdi-account-multiple"></i><span
                                         class="hide-menu">Manajemen Siswa</span></a></li>

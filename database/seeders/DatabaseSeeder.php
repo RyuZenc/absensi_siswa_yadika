@@ -43,9 +43,9 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 2. Buat Data Kelas
-        $kelas10 = Kelas::create(['nama_kelas' => 'X RPL 1', 'tingkat' => 'X']);
-        $kelas11 = Kelas::create(['nama_kelas' => 'XI TKJ 2', 'tingkat' => 'XI']);
-        $kelas12 = Kelas::create(['nama_kelas' => 'XII AKL 1', 'tingkat' => 'XII']);
+        $kelas10 = Kelas::create(['nama_kelas' => 'IPA 1', 'tingkat' => 'X']);
+        $kelas11 = Kelas::create(['nama_kelas' => 'IPS 1', 'tingkat' => 'XI']);
+        $kelas12 = Kelas::create(['nama_kelas' => 'IPS 2', 'tingkat' => 'XII']);
 
         // 3. Buat Data Mata Pelajaran
         $mapelMTK = Mapel::create(['nama_mapel' => 'Matematika Wajib']);
@@ -66,52 +66,7 @@ class DatabaseSeeder extends Seeder
             'nama_lengkap' => 'Budi Santoso, S.Pd.',
         ]);
 
-        // Guru 2
-        $userGuru2 = User::create([
-            'name' => 'Siti Aminah, M.Kom.',
-            'email' => 'siti.guru@gmail.com',
-            'password' => Hash::make('password'),
-            'role' => 'guru',
-        ]);
-        $guru2 = $userGuru2->guru()->create([
-            'nip' => '198502022012022002',
-            'nama_lengkap' => 'Siti Aminah, M.Kom.',
-        ]);
-
-        // Anda bisa tambahkan guru lain dengan cara yang sama...
-
-        // 5. Buat Akun Siswa (lengkap dengan User)
-        // Siswa di kelas X RPL 1
-        for ($i = 1; $i <= 10; $i++) {
-            $userSiswa = User::create([
-                'name' => "Siswa Kelas X No. " . $i,
-                'email' => "siswa.x." . $i . "@gmail.com",
-                'password' => Hash::make('password'),
-                'role' => 'siswa',
-            ]);
-            $userSiswa->siswa()->create([
-                'nis' => '1000' . $i,
-                'nama_lengkap' => "Siswa Kelas X No. " . $i,
-                'kelas_id' => $kelas10->id,
-            ]);
-        }
-
-        // Siswa di kelas XI TKJ 2
-        for ($i = 1; $i <= 10; $i++) {
-            $userSiswa = User::create([
-                'name' => "Siswa Kelas XI No. " . $i,
-                'email' => "siswa.xi." . $i . "@gmail.com",
-                'password' => Hash::make('password'),
-                'role' => 'siswa',
-            ]);
-            $userSiswa->siswa()->create([
-                'nis' => '1100' . $i,
-                'nama_lengkap' => "Siswa Kelas XI No. " . $i,
-                'kelas_id' => $kelas11->id,
-            ]);
-        }
-
-        // 6. Buat Contoh Jadwal
+        // 6. Contoh Jadwal
         Jadwal::create([
             'guru_id' => $guru1->id,
             'mapel_id' => $mapelMTK->id,
@@ -119,14 +74,6 @@ class DatabaseSeeder extends Seeder
             'hari' => 'Senin',
             'jam_mulai' => '07:30:00',
             'jam_selesai' => '09:00:00',
-        ]);
-        Jadwal::create([
-            'guru_id' => $guru2->id,
-            'mapel_id' => $mapelPROG->id,
-            'kelas_id' => $kelas10->id,
-            'hari' => 'Senin',
-            'jam_mulai' => '09:00:00',
-            'jam_selesai' => '10:30:00',
         ]);
         Jadwal::create([
             'guru_id' => $guru1->id,

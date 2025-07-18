@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Kelas;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule; // Import Rule untuk validasi
 
 class KelasController extends Controller
 {
+    // Definisikan pilihan tingkat di satu tempat
+    private $tingkatOptions = ['X', 'XI', 'XII'];
+
     public function index()
     {
         $kelas = Kelas::withCount('siswas')->get();
@@ -16,29 +20,32 @@ class KelasController extends Controller
 
     public function create()
     {
-        return view('admin.kelas.create');
+        return view('admin.kelas.create', ['tingkats' => $this->tingkatOptions]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'nama_kelas' => 'required|string|max:255|unique:kelas,nama_kelas',
-            'tingkat' => 'required|string|max:50',
+            'tingkat' => ['required', Rule::in($this->tingkatOptions)],
         ]);
         Kelas::create($request->all());
         return redirect()->route('admin.kelas.index')->with('success', 'Kelas baru berhasil ditambahkan.');
     }
 
-    public function edit(Kelas $kela)
+    public function edit(Kelas $kela) // Variabel $kela akan diubah menjadi $kelas
     {
-        return view('admin.kelas.edit', ['kelas' => $kela]);
+        return view('admin.kelas.edit', [
+            'kelas' => $kela,
+            'tingkats' => $this->tingkatOptions
+        ]);
     }
 
     public function update(Request $request, Kelas $kela)
     {
         $request->validate([
             'nama_kelas' => 'required|string|max:255|unique:kelas,nama_kelas,' . $kela->id,
-            'tingkat' => 'required|string|max:50',
+            'tingkat' => ['required', Rule::in($this->tingkatOptions)],
         ]);
         $kela->update($request->all());
         return redirect()->route('admin.kelas.index')->with('success', 'Data kelas berhasil diperbarui.');

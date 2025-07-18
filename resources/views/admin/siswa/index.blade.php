@@ -1,12 +1,44 @@
 <x-app-layout>
     @section('header', 'Manajemen Siswa')
-
     <div class="w-full">
-        <div class="flex justify-end mb-4">
-            <a href="{{ route('admin.siswa.create') }}"
-                class="bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded transition-all border border-gray-200">
-                + Tambah Siswa</a>
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+
+            <div class="flex-1 min-w-[260px]">
+                <form action="{{ route('admin.siswa.index') }}" method="GET" class="flex gap-2">
+                    <input type="text" name="search" placeholder="Cari nama, NIS, email, atau kelas..."
+                        class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value="{{ $search ?? '' }}">
+                    <button type="submit" class="btn btn-primary font-bold py-2 px-4 rounded-md transition">
+                        Cari
+                    </button>
+                </form>
+            </div>
+
+            <div class="flex items-center gap-2 bg-white p-2 rounded-lg shadow-md">
+                <form action="{{ route('admin.siswa.import') }}" method="POST" enctype="multipart/form-data"
+                    class="flex items-center gap-2">
+                    @csrf
+                    <input type="file" name="file"
+                        class="text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-green-50 file:text-green-700
+                        hover:file:bg-green-100"
+                        required>
+                    <button type="submit" class="btn btn-primary btn-sm rounded-md">
+                        Import
+                    </button>
+                </form>
+            </div>
+
+            <div>
+                <a href="{{ route('admin.siswa.create') }}" class="btn btn-primary font-bold py-2 px-4 rounded-md">
+                    + Tambah Siswa
+                </a>
+            </div>
         </div>
+
         <div class="overflow-x-auto bg-white rounded-lg shadow-md">
             <table class="w-full px-4 bg-white">
                 <thead class="bg-gray-800 text-white">
@@ -34,6 +66,7 @@
                                     onsubmit="return confirm('Apakah Anda yakin ingin menghapus data siswa ini?');">
                                     @csrf
                                     @method('DELETE')
+                                    <input type="hidden" name="search" value="{{ $search ?? '' }}">
                                     <button type="submit" class="btn btn-danger btn-sm rounded-md">
                                         Hapus
                                     </button>
@@ -47,6 +80,9 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+        <div class="mt-4">
+            {{ $siswas->links() }}
         </div>
     </div>
 </x-app-layout>

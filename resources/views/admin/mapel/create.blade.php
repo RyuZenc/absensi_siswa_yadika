@@ -12,12 +12,12 @@
                 <span class="text-red-500 text-sm">{{ $message }}</span>
             @enderror
         </div>
-
-        <div class="mt-6 flex justify-end">
+        <div class="mt-2 flex justify-end gap-2">
             <a href="{{ route('admin.mapel.index') }}"
-                class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2">Batal</a>
-            <button type="submit"
-                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Simpan</button>
+                class="btn btn-primary rounded-md py-2 px-6 text-base font-semibold">Batal</a>
+            <button type="submit" class="btn btn-primary rounded-md py-2 px-6 text-base font-semibold">
+                Simpan
+            </button>
         </div>
     </form>
 </x-app-layout>

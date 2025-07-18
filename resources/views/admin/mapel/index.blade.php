@@ -3,10 +3,11 @@
 
     <div class="w-full">
         <div class="flex justify-end mb-4">
-            <a href="{{ route('admin.mapel.create') }}"
-                class="bg-blue-500 hover:bg-blue-700 text-black font-bold py-2 px-4 rounded transition-all border border-gray-200">
-                + Tambah Mapel
-            </a>
+            <div>
+                <a href="{{ route('admin.mapel.create') }}" class="btn btn-primary font-bold py-2 px-4 rounded-md">
+                    + Tambah Mata Pelajaran
+                </a>
+            </div>
         </div>
         <div class="overflow-x-auto bg-white rounded-lg shadow-md">
             <table class="w-full px-4 bg-white">

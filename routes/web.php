@@ -3,8 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
-
-// Import semua controller yang dibutuhkan
 use App\Http\Controllers\Admin\JadwalController;
 use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\MapelController;
@@ -31,9 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // =============================================================
-    // GRUP ROUTE UNTUK ADMIN
-    // =============================================================
+    // GRUP ROUTE ADMIN
     Route::middleware(['isAdmin'])->prefix('admin')->name('admin.')->group(function () {
 
         // Dashboard Admin
@@ -45,6 +41,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             $jumlahMapel = \App\Models\Mapel::count();
             return view('dashboard', compact('jumlahSiswa', 'jumlahGuru', 'jumlahKelas', 'jumlahMapel'));
         })->name('dashboard');
+
+        // ROUTE IMPORT DATA
+        Route::post('/guru/import', [GuruController::class, 'import'])->name('guru.import');
+        Route::post('/siswa/import', [SiswaController::class, 'import'])->name('siswa.import');
 
         // CRUD untuk semua data master
         Route::resource('jadwal', JadwalController::class);

@@ -33,7 +33,7 @@
                 @enderror
             </div>
             <div>
-                <!-- Spacer -->
+
             </div>
             <div>
                 <label for="password" class="block text-sm font-medium text-gray-700">Password Baru (Opsional)</label>
@@ -51,11 +51,12 @@
             </div>
         </div>
 
-        <div class="mt-6 flex justify-end">
+        <div class="mt-2 flex justify-end gap-2">
             <a href="{{ route('admin.guru.index') }}"
-                class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2">Batal</a>
-            <button type="submit"
-                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Update</button>
+                class="btn btn-primary rounded-md py-2 px-6 text-base font-semibold">Batal</a>
+            <button type="submit" class="btn btn-primary rounded-md py-2 px-6 text-base font-semibold">
+                Update
+            </button>
         </div>
     </form>
 </x-app-layout>

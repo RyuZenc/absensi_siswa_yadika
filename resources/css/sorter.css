@@ -1,0 +1,11 @@
+.sort-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-size: 0.8rem;
+}
+
+.sort-btn:hover {
+    text-decoration: underline;
+}

@@ -83,7 +83,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // GRUP ROUTE GURU
     Route::middleware(['isGuru'])->prefix('guru')->name('guru.')->group(function () {
-        Route::get('/dashboard', [GuruAbsensiController::class, 'dashboard'])->name('dashboard'); // Nama rute: guru.dashboard
+        Route::get('/dashboard', [GuruAbsensiController::class, 'dashboard'])->name('dashboard');
+        Route::get('/kelas', [GuruAbsensiController::class, 'daftarKelas'])->name('kelas.index');
         Route::get('/absensi/{jadwal}', [GuruAbsensiController::class, 'show'])->name('absensi.show');
         Route::post('/absensi/{sesiAbsen}/kode', [GuruAbsensiController::class, 'createCode'])->name('absensi.createCode');
         Route::post('/absensi/{sesiAbsen}/manual', [GuruAbsensiController::class, 'storeManual'])->name('absensi.storeManual');

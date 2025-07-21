@@ -97,5 +97,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-// Memuat route otentikasi (login, register, logout, dll.) dari file auth.php
 require __DIR__ . '/auth.php';

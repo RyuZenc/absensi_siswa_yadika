@@ -55,7 +55,7 @@
                     'sidebarOpen' => true,
                 ])
                 <a href="{{ route('profile.edit') }}" title="Profile"
-                    class="flex items-center gap-3 h-12 px-4 rounded transition duration-200 bg-gray-500 hover:bg-gray-700 {{ request()->routeIs('profile.edit') ? 'bg-gray-900' : '' }}"
+                    class="flex items-center gap-3 h-12 px-4 rounded transition duration-200 bg-blue-500 hover:bg-blue-700 {{ request()->routeIs('profile.edit') ? 'bg-gray-900' : '' }}"
                     :class="!isSidebarOpen && 'justify-center'">
                     <i class="bi bi-person-circle text-xl w-6 text-center"></i>
                     <span x-show="isSidebarOpen">Profile</span>

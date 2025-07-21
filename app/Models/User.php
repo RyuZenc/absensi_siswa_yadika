@@ -1,8 +1,5 @@
 <?php
 
-// File: app/Models/User.php
-// (Modifikasi file bawaan Laravel)
-
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -22,9 +19,10 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
-        'role', // Tambahkan 'role'
+        'role',
     ];
 
     /**

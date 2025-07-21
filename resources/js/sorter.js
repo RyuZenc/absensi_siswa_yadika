@@ -1,5 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
     const table = document.getElementById("sortableTable");
+    if (!table) {
+        return;
+    }
     const buttons = table.querySelectorAll(".sort-btn");
     let sortDirection = {};
 

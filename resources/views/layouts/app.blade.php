@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
 </head>
 
@@ -46,7 +46,7 @@
                 </button>
             </div>
 
-            <nav class="mt-10 flex-0 flex-col gap-y-2 overflow-y-auto overflow-x-hidden scrollbar-thin-dark">
+            <nav class="mt-10 flex flex-col gap-y-2 overflow-y-auto overflow-x-hidden scrollbar-thin-dark">
                 @includeWhen(Auth::user()->role === 'admin', 'components.sidebar.admin', [
                     'sidebarOpen' => true,
                 ])
@@ -54,31 +54,30 @@
                 @includeWhen(Auth::user()->role === 'siswa', 'components.sidebar.siswa', [
                     'sidebarOpen' => true,
                 ])
-            </nav>
-
-            <div class="mt-auto pt-4 border-t border-gray-700 flex flex-col gap-y-2 shrink-0">
                 <a href="{{ route('profile.edit') }}" title="Profile"
-                    class="flex items-center gap-3 h-12 px-4 rounded transition duration-200 hover:bg-gray-700 {{ request()->routeIs('profile.edit') ? 'bg-gray-900' : '' }}"
+                    class="flex items-center gap-3 h-12 px-4 rounded transition duration-200 bg-gray-500 hover:bg-gray-700 {{ request()->routeIs('profile.edit') ? 'bg-gray-900' : '' }}"
                     :class="!isSidebarOpen && 'justify-center'">
                     <i class="bi bi-person-circle text-xl w-6 text-center"></i>
                     <span x-show="isSidebarOpen">Profile</span>
                 </a>
-
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" title="Logout"
-                        class="w-full flex items-center gap-3 h-12 px-4 rounded transition duration-200 hover:bg-red-700 bg-red-600"
+                        class="w-full flex items-center gap-3 h-12 px-4 rounded transition duration-200 bg-red-500 hover:bg-red-600"
                         :class="!isSidebarOpen && 'justify-center'">
                         <i class="bi bi-box-arrow-left text-xl w-6 text-center"></i>
                         <span x-show="isSidebarOpen">Logout</span>
                     </button>
                 </form>
-            </div>
+            </nav>
         </aside>
+
+        <div x-show="isSidebarOpen" @click="isSidebarOpen = false"
+            class="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden" x-transition.opacity></div>
 
         <main class="flex-1 p-6 md:p-6 overflow-y-auto">
             <div
-                class="sticky backdrop-blur-md bg-white/90 top-0 z-40 bg-white rounded-b-lg shadow-md p-4 md:p-6 mb-6 flex items-center justify-between flex-wrap md:flex-nowrap gap-4">
+                class="sticky backdrop-blur-md bg-white/90 top-0 z-40 bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 flex items-center justify-between flex-wrap md:flex-nowrap gap-4">
                 <div class="flex items-center gap-4">
                     <button @click="isSidebarOpen = !isSidebarOpen"
                         class="p-2 rounded-md hover:bg-gray-100 focus:outline-none md:hidden">

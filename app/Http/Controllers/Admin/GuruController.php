@@ -24,7 +24,7 @@ class GuruController extends Controller
                 $q->where('nama_lengkap', 'like', "%{$search}%")
                     ->orWhere('nip', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($userQuery) use ($search) {
-                        $userQuery->where('email', 'like', "%{$search}%");
+                        $userQuery->where('email', 'like', "%{$search}%")->orWhere('username', 'like', "%{$search}%");
                     });
             });
         }
@@ -45,6 +45,7 @@ class GuruController extends Controller
         $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:255'],
             'nip' => ['required', 'string', 'max:255', 'unique:gurus'],
+            'username' => ['required', 'string', 'max:255', 'unique:users', 'alpha_dash'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
@@ -52,6 +53,7 @@ class GuruController extends Controller
         DB::transaction(function () use ($request) {
             $user = User::create([
                 'name' => $request->nama_lengkap,
+                'username' => $request->username,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => 'guru',
@@ -76,6 +78,7 @@ class GuruController extends Controller
         $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:255'],
             'nip' => ['required', 'string', 'max:255', 'unique:gurus,nip,' . $guru->id],
+            'username' => ['required', 'string', 'max:255', 'unique:users,username,' . $guru->user_id, 'alpha_dash'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $guru->user_id],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ]);
@@ -83,6 +86,7 @@ class GuruController extends Controller
         DB::transaction(function () use ($request, $guru) {
             $guru->user()->update([
                 'name' => $request->nama_lengkap,
+                'username' => $request->username,
                 'email' => $request->email,
             ]);
 
@@ -112,9 +116,6 @@ class GuruController extends Controller
             ->with('success', 'Data guru berhasil dihapus.');
     }
 
-    /**
-     * Method untuk mengimpor data guru dari file CSV.
-     */
     public function import(Request $request)
     {
         $request->validate([

@@ -21,9 +21,8 @@ class AdminLoginController extends Controller
 
         if (Auth::user()->role !== 'admin') {
             Auth::logout();
-            // Arahkan kembali ke halaman login admin yang benar
             return redirect()->route('admin.login')->withErrors([
-                'email' => 'Akun ini tidak memiliki akses sebagai admin.',
+                'login' => 'Akun ini tidak memiliki akses sebagai admin.',
             ]);
         }
 

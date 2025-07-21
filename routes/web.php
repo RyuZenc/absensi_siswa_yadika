@@ -68,7 +68,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             $jumlahGuru = \App\Models\Guru::count();
             $jumlahKelas = \App\Models\Kelas::count();
             $jumlahMapel = \App\Models\Mapel::count();
-            return view('dashboard', compact('jumlahSiswa', 'jumlahGuru', 'jumlahKelas', 'jumlahMapel'));
+            return view('admin.dashboard', compact('jumlahSiswa', 'jumlahGuru', 'jumlahKelas', 'jumlahMapel'));
         })->name('dashboard');
 
         Route::post('/guru/import', [GuruController::class, 'import'])->name('guru.import');

@@ -13,7 +13,7 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6 text-gray-600">
         @csrf
         @method('patch')
 
@@ -26,9 +26,17 @@
                 <x-text-input id="name" name="name" type="text"
                     class="mt-1 block w-full bg-gray-100 text-gray-500" :value="old('name', $user->name)" disabled />
             @endif
-
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
+
+        @if (in_array(auth()->user()->role, ['admin', 'guru']))
+            <div>
+                <x-input-label for="username" :value="__('Username')" />
+                <x-text-input id="username" name="username" type="text" class="mt-1 block w-full" :value="old('username', $user->username)"
+                    required autocomplete="username" />
+                <x-input-error class="mt-2" :messages="$errors->get('username')" />
+            </div>
+        @endif
 
         <div>
             <x-input-label for="email" :value="__('Email')" />

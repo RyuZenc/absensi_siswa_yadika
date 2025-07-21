@@ -3,12 +3,12 @@
 
     <div class="w-full">
         <div class="flex justify-end mb-4">
-            <div>
-                <a href="{{ route('admin.mapel.create') }}" class="btn btn-primary font-bold py-2 px-4 rounded-md">
-                    + Tambah Mata Pelajaran
-                </a>
-            </div>
+            <a href="{{ route('admin.mapel.create') }}"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition">
+                + Tambah Mata Pelajaran
+            </a>
         </div>
+
         <div class="overflow-x-auto bg-white rounded-lg shadow-md">
             <table class="w-full px-4 bg-white">
                 <thead class="bg-gray-800 text-white">
@@ -21,21 +21,23 @@
                     @forelse ($mapels as $mapel)
                         <tr class="border-b">
                             <td class="text-left py-3 px-4">{{ $mapel->nama_mapel }}</td>
-                            <td class="text-left py-3 px-4 d-flex align-items-center gap-2">
-                                <a href="{{ route('admin.mapel.edit', $mapel->id) }}"
-                                    class="btn btn-warning btn-sm rounded-md">
-                                    Edit
-                                </a>
-                                <form action="{{ route('admin.mapel.destroy', $mapel->id) }}" method="POST"
-                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus mata pelajaran ini?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm rounded-md">
-                                        Hapus
-                                    </button>
-                                </form>
+                            <td class="text-left py-3 px-4">
+                                <div class="flex gap-2">
+                                    <a href="{{ route('admin.mapel.edit', $mapel->id) }}"
+                                        class="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-1 px-3 rounded-md text-sm transition">
+                                        Edit
+                                    </a>
+                                    <form action="{{ route('admin.mapel.destroy', $mapel->id) }}" method="POST"
+                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus mata pelajaran ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded-md text-sm transition">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
-
                         </tr>
                     @empty
                         <tr>

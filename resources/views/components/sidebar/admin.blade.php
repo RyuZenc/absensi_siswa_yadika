@@ -1,5 +1,5 @@
 @php($sidebarOpen = $sidebarOpen ?? true)
-<h3 class="font-semibold text-gray-400 uppercase tracking-wider mb-2 text-sm">Menu</h3>
+<h3 class="font-semibold text-gray-400 uppercase tracking-wider mb-2 text-sm">Menu Admin</h3>
 
 <x-sidebar.link href="{{ route('admin.dashboard') }}" icon="bi-grid-1x2-fill" title="Dashboard" :active="request()->routeIs('admin.dashboard')"
     :sidebarOpen="$sidebarOpen" />

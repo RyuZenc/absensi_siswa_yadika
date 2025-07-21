@@ -2,7 +2,7 @@ FROM php:8.2-fpm
 
 # Install PHP extensions
 RUN apt-get update && apt-get install -y \
-    unzip git curl libzip-dev zip \
+    unzip git curl libzip-dev zip libonig-dev \
     && docker-php-ext-install pdo pdo_mysql mbstring zip
 
 # Install Composer

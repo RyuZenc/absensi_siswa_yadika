@@ -1,6 +1,6 @@
 FROM php:8.2-fpm
 
-# Install PHP extensions
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     unzip git curl libzip-dev zip libonig-dev \
     && docker-php-ext-install pdo pdo_mysql mbstring zip
@@ -8,16 +8,14 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-WORKDIR /app
+# Set working directory
+WORKDIR /var/www/html
 
-# 👇 Penting: salin file composer lebih awal agar bisa `install` dulu
-COPY composer.json composer.lock ./
-
-RUN composer install --ignore-platform-reqs --no-progress --no-interaction --verbose
-
-# Setelah itu baru salin semua isi app
+# Copy all source code (including artisan, env, etc)
 COPY . .
 
-# NPM build (jika kamu pakai Node)
-RUN npm install
-RUN npm run build
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader --no-progress --no-interaction
+
+# Build assets (if needed)
+RUN npm install && npm run build

@@ -28,7 +28,9 @@ class SiswaController extends Controller
                         $userQuery->where('email', 'like', "%{$search}%");
                     })
                     ->orWhereHas('kelas', function ($kelasQuery) use ($search) {
-                        $kelasQuery->where('nama_kelas', 'like', "%{$search}%");
+                        $kelasQuery->where(DB::raw("CONCAT(tingkat, ' - ', nama_kelas)"), 'like', "%{$search}%")
+                            ->orWhere('tingkat', 'like', "%{$search}%")
+                            ->orWhere('nama_kelas', 'like', "%{$search}%");
                     });
             });
         }

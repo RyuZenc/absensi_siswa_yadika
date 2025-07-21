@@ -33,8 +33,6 @@ Route::get('/', function () {
 });
 
 // --- RUTE LOGIN PUBLIK ---
-// Rute-rute ini tidak memerlukan autentikasi (middleware 'guest')
-
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('login', [AdminLoginController::class, 'create'])->middleware('guest')->name('login');
     Route::post('login', [AdminLoginController::class, 'store'])->middleware('guest')->name('login.store');

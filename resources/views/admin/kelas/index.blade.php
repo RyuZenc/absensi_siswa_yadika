@@ -10,18 +10,32 @@
         </div>
 
         <div class="overflow-x-auto bg-white rounded-lg shadow-md">
-            <table class="min-w-full bg-white">
+            <table id="sortableTable" class="min-w-full bg-white text-sm">
                 <thead class="bg-gray-800 text-white">
                     <tr>
-                        <th class="w-1/4 text-left py-3 px-4 uppercase font-semibold text-sm">Nama Kelas</th>
-                        <th class="w-1/4 text-left py-3 px-4 uppercase font-semibold text-sm">Tingkat</th>
-                        <th class="w-1/6 text-left py-3 px-4 uppercase font-semibold text-sm">Jumlah Siswa</th>
-                        <th class="w-1/4 text-left py-3 px-4 uppercase font-semibold text-sm">Aksi</th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            #
+                            <button class="sort-btn ml-1" data-column="0">⬍</button>
+                        </th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            Nama Kelas
+                            <button class="sort-btn ml-1" data-column="1">⬍</button>
+                        </th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            Tingkat
+                            <button class="sort-btn ml-1" data-column="2">⬍</button>
+                        </th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            Jumlah Siswa
+                            <button class="sort-btn ml-1" data-column="3">⬍</button>
+                        </th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700">
                     @forelse ($kelas as $k)
                         <tr class="border-b">
+                            <td class="py-3 px-4">{{ $loop->iteration }}</td>
                             <td class="py-3 px-4">{{ $k->nama_kelas }}</td>
                             <td class="py-3 px-4">{{ $k->tingkat }}</td>
                             <td class="py-3 px-4">{{ $k->siswas_count }}</td>
@@ -45,7 +59,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center py-4">Tidak ada data kelas.</td>
+                            <td colspan="5" class="text-center py-4">Tidak ada data kelas.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -116,7 +116,6 @@
                             clearInterval(countdownInterval);
                             countdownElement.textContent = 'Waktu habis!';
 
-                            // Secara dinamis menyembunyikan kode dan menampilkan form
                             kodeContainer.style.display = 'none';
                             formContainer.style.display = 'block';
                         }

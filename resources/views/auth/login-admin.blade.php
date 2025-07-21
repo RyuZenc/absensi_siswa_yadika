@@ -1,39 +1,52 @@
 <x-guest-layout>
-    <x-auth-session-status class="mb-4" :status="session('status')" />
-    <div class="text-center mb-4">
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Login Admin</h2>
+    <div class="login-card">
+        <x-auth-session-status class="mb-4" :status="session('status')" />
+
+        <div class="text-center mb-4">
+            <h2 class="text-2xl fw-bold text-gray-800">Login Admin</h2>
+        </div>
+
+        <form method="POST" action="{{ route('admin.login.store') }}">
+            @csrf
+
+            <div class="mb-3 text-start">
+                <x-input-label for="login" :value="__('Username / Email')" />
+                <x-text-input id="login" class="form-control mt-1" type="text" name="login" :value="old('login')"
+                    required autofocus autocomplete="login" />
+                <x-input-error :messages="$errors->get('login')" class="mt-2" />
+            </div>
+
+            <div class="mb-3 text-start">
+                <x-input-label for="password" :value="__('Password')" />
+                <x-text-input id="password" class="form-control mt-1" type="password" name="password" required
+                    autocomplete="current-password" />
+                <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            </div>
+
+            <div class="mb-3 form-check text-start">
+                <input id="remember_me" type="checkbox" class="form-check-input" name="remember">
+                <label for="remember_me" class="form-check-label">{{ __('Ingat saya') }}</label>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                @if (Route::has('password.request'))
+                    <a class="text-decoration-underline text-sm text-muted" href="{{ route('password.request') }}">
+                        {{ __('Lupa Password?') }}
+                    </a>
+                @endif
+                <button type="submit" class="btn btn-primary">
+                    {{ __('Log in') }}
+                </button>
+            </div>
+        </form>
     </div>
-    <form method="POST" action="{{ route('admin.login.store') }}">
-        @csrf
-        <div>
-            {{-- Ubah di sini --}}
-            <x-input-label for="login" :value="__('Username / Email')" />
-            <x-text-input id="login" class="block mt-1 w-full" type="text" name="login" :value="old('login')" required
-                autofocus autocomplete="login" />
-            <x-input-error :messages="$errors->get('login')" class="mt-2" />
-        </div>
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required
-                autocomplete="current-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox"
-                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
+
+    <div class="info-box">
+        <h6><i class="bi bi-info-circle-fill me-1"></i> Informasi</h6>
+        <ul class="mb-0 ps-3">
+            <li>Hanya admin yang memiliki akses ke halaman ini.</li>
+            <li>Gunakan username/email dan password yang valid.</li>
+            <li>Laporkan ke developer jika terjadi kesalahan sistem.</li>
+        </ul>
+    </div>
 </x-guest-layout>

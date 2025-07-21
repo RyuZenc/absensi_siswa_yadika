@@ -10,18 +10,26 @@
         </div>
 
         <div class="overflow-x-auto bg-white rounded-lg shadow-md">
-            <table class="w-full px-4 bg-white">
+            <table id="sortableTable" class="w-full px-4 bg-white text-sm">
                 <thead class="bg-gray-800 text-white">
                     <tr>
-                        <th class="w-4/5 text-left py-3 px-4 uppercase font-semibold text-sm">Nama Mata Pelajaran</th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            #
+                            <button class="sort-btn ml-1" data-column="0">⬍</button>
+                        </th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            Nama Mata Pelajaran
+                            <button class="sort-btn ml-1" data-column="1">⬍</button>
+                        </th>
                         <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700">
                     @forelse ($mapels as $mapel)
                         <tr class="border-b">
-                            <td class="text-left py-3 px-4">{{ $mapel->nama_mapel }}</td>
-                            <td class="text-left py-3 px-4">
+                            <td class="py-3 px-4">{{ $loop->iteration }}</td>
+                            <td class="py-3 px-4">{{ $mapel->nama_mapel }}</td>
+                            <td class="py-3 px-4">
                                 <div class="flex gap-2">
                                     <a href="{{ route('admin.mapel.edit', $mapel->id) }}"
                                         class="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-1 px-3 rounded-md text-sm transition">
@@ -41,7 +49,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="2" class="text-center py-4">Tidak ada data mata pelajaran.</td>
+                            <td colspan="3" class="text-center py-4">Tidak ada data mata pelajaran.</td>
                         </tr>
                     @endforelse
                 </tbody>

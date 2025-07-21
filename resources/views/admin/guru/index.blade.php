@@ -44,19 +44,36 @@
         </div>
 
         <div class="overflow-x-auto bg-white rounded-lg shadow-md">
-            <table class="w-full px-4 bg-white">
+            <table id="sortableTable" class="w-full px-4 bg-white text-sm">
                 <thead class="bg-gray-800 text-white">
                     <tr>
-                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Nama Lengkap</th>
-                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">NIP</th>
-                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Username</th>
-                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Email</th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            #
+                            <button class="sort-btn ml-1" data-column="0">⬍</button>
+                        </th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            Nama Lengkap
+                            <button class="sort-btn ml-1" data-column="1">⬍</button>
+                        </th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            NIP
+                            <button class="sort-btn ml-1" data-column="2">⬍</button>
+                        </th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            Username
+                            <button class="sort-btn ml-1" data-column="3">⬍</button>
+                        </th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            Email
+                            <button class="sort-btn ml-1" data-column="4">⬍</button>
+                        </th>
                         <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700">
                     @forelse ($gurus as $guru)
                         <tr class="border-b">
+                            <td class="py-3 px-4">{{ $loop->iteration }}</td>
                             <td class="py-3 px-4">{{ $guru->nama_lengkap }}</td>
                             <td class="py-3 px-4">{{ $guru->nip }}</td>
                             <td class="py-3 px-4">{{ $guru->user->username ?? '-' }}</td>
@@ -82,7 +99,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center py-4">Tidak ada data guru.</td>
+                            <td colspan="6" class="text-center py-4">Tidak ada data guru.</td>
                         </tr>
                     @endforelse
                 </tbody>

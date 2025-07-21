@@ -15,7 +15,6 @@
                     </button>
                 </form>
             </div>
-
             <div class="flex items-center gap-2 bg-white p-2 rounded-lg shadow">
                 <form action="{{ route('admin.siswa.import') }}" method="POST" enctype="multipart/form-data"
                     class="flex items-center gap-2">
@@ -34,7 +33,6 @@
                     </button>
                 </form>
             </div>
-
             <div>
                 <a href="{{ route('admin.siswa.create') }}"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md text-sm transition">
@@ -42,28 +40,44 @@
                 </a>
             </div>
         </div>
-
         <div class="overflow-x-auto bg-white rounded-lg shadow-md">
-            <table class="w-full px-4 bg-white text-sm">
+            <table id="sortableTable" class="w-full px-4 bg-white text-sm">
                 <thead class="bg-gray-800 text-white">
                     <tr>
-                        <th class="text-left py-3 px-4 uppercase font-semibold">Nama Lengkap</th>
-                        <th class="text-left py-3 px-4 uppercase font-semibold">NIS</th>
-                        <th class="text-left py-3 px-4 uppercase font-semibold">Email</th>
-                        <th class="text-left py-3 px-4 uppercase font-semibold">Kelas</th>
-                        <th class="text-left py-3 px-4 uppercase font-semibold">Aksi</th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            #
+                            <button class="sort-btn ml-1" data-column="0">⬍</button>
+                        </th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            Nama Lengkap
+                            <button class="sort-btn ml-1" data-column="1">⬍</button>
+                        </th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            NIS
+                            <button class="sort-btn ml-1" data-column="2">⬍</button>
+                        </th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            Email
+                            <button class="sort-btn ml-1" data-column="3">⬍</button>
+                        </th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            Kelas
+                            <button class="sort-btn ml-1" data-column="4">⬍</button>
+                        </th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700">
-                    @forelse ($siswas as $siswa)
+                    @forelse ($siswas as $index => $siswa)
                         <tr class="border-b">
+                            <td class="py-3 px-4">{{ $loop->iteration }}</td>
                             <td class="py-3 px-4">{{ $siswa->nama_lengkap }}</td>
                             <td class="py-3 px-4">{{ $siswa->nis }}</td>
                             <td class="py-3 px-4">{{ $siswa->user->email }}</td>
-                            <td class="py-3 px-4">{{ $siswa->kelas->nama_kelas }}</td>
+                            <td class="py-3 px-4">{{ $siswa->kelas->tingkat . ' - ' . $siswa->kelas->nama_kelas }}</td>
                             <td class="py-3 px-4 flex gap-2">
                                 <a href="{{ route('admin.siswa.edit', $siswa->id) }}"
-                                    class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-1.5 px-3 rounded-md text-sm transition">
+                                    class="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-1 px-3 rounded-md text-sm transition">
                                     Edit
                                 </a>
                                 <form action="{{ route('admin.siswa.destroy', $siswa->id) }}" method="POST"
@@ -72,7 +86,7 @@
                                     @method('DELETE')
                                     <input type="hidden" name="search" value="{{ $search ?? '' }}">
                                     <button type="submit"
-                                        class="bg-red-600 hover:bg-red-700 text-white font-semibold py-1.5 px-3 rounded-md text-sm transition">
+                                        class="bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded-md text-sm transition">
                                         Hapus
                                     </button>
                                 </form>

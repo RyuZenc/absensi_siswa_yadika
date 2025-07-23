@@ -23,6 +23,10 @@ class ProfileUpdateRequest extends FormRequest
             $rules['name'] = ['required', 'string', 'max:255'];
         }
 
+        if (in_array($this->user()->role, ['admin', 'guru'])) {
+            $rules['username'] = ['required', 'string', 'max:255', 'alpha_dash', Rule::unique(User::class)->ignore($this->user()->id)];
+        }
+
         return $rules;
     }
 }

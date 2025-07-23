@@ -1,7 +1,4 @@
 <!DOCTYPE html>
-<html lang="id">
-
-<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
@@ -96,15 +93,14 @@
             <div class="title mb-4">Selamat Datang di Sistem Absensi</div>
             <p class="mb-2 text-secondary">Silakan pilih peran Anda untuk melanjutkan:</p>
 
-            <a href="{{ Auth::check() ? url('/dashboard') : route('login') }}" class="btn btn-orange btn-role w-100">
+            <a href="{{ route('siswa.login') }}" class="btn btn-orange btn-role w-100">
                 <i class="bi bi-person-fill me-2"></i> Login Siswa
             </a>
-            <a href="{{ Auth::check() ? url('/dashboard') : route('login') }}" class="btn btn-success btn-role w-100">
+            <a href="{{ route('guru.login') }}" class="btn btn-success btn-role w-100">
                 <i class="bi bi-person-badge-fill me-2"></i> Login Guru
             </a>
-            <a href="{{ Auth::check() ? url('/dashboard') : route('login') }}"
-                class="btn btn-outline-primary btn-role w-100">
-                <i class="bi bi-person-workspace me-2"></i> Data Dashboard
+            <a href="{{ route('admin.login') }}" class="btn btn-outline-primary btn-role w-100">
+                <i class="bi bi-person-workspace me-2"></i> Login Admin
             </a>
         </div>
 

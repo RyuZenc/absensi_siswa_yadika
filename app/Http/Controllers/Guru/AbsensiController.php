@@ -26,6 +26,26 @@ class AbsensiController extends Controller
         return view('guru.dashboard', compact('jadwals'));
     }
 
+    // --- FUNGSI YANG HILANG SUDAH DITAMBAHKAN KEMBALI ---
+    // Menampilkan daftar semua kelas yang diajar oleh guru
+    public function daftarKelas()
+    {
+        $guruId = Auth::user()->guru->id;
+
+        // Ambil semua jadwal unik berdasarkan kelas dan mapel untuk guru ini
+        $jadwals = Jadwal::with(['kelas', 'mapel'])
+            ->where('guru_id', $guruId)
+            ->orderBy('kelas_id')
+            ->orderBy('mapel_id')
+            ->get()
+            ->unique(function ($item) {
+                return $item['kelas_id'] . '-' . $item['mapel_id'];
+            });
+
+        return view('guru.kelas.index', compact('jadwals'));
+    }
+    // --- AKHIR FUNGSI BARU ---
+
     // Menampilkan halaman untuk melakukan absensi
     public function show(Jadwal $jadwal)
     {

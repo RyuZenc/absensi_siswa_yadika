@@ -1,4 +1,6 @@
 import "./bootstrap";
+import "./sorter";
+import "./clock";
 
 import Alpine from "alpinejs";
 

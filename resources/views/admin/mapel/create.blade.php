@@ -14,8 +14,11 @@
         </div>
         <div class="mt-2 flex justify-end gap-2">
             <a href="{{ route('admin.mapel.index') }}"
-                class="btn btn-primary rounded-md py-2 px-6 text-base font-semibold">Batal</a>
-            <button type="submit" class="btn btn-primary rounded-md py-2 px-6 text-base font-semibold">
+                class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-md text-base transition">
+                Batal
+            </a>
+            <button type="submit"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-md text-base transition">
                 Simpan
             </button>
         </div>

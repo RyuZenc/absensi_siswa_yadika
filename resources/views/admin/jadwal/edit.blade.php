@@ -61,11 +61,15 @@
             </div>
         </div>
 
-        <div class="mt-6 flex justify-end">
+        <div class="mt-2 flex justify-end gap-2">
             <a href="{{ route('admin.jadwal.index') }}"
-                class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-2">Batal</a>
+                class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-md text-base transition">
+                Batal
+            </a>
             <button type="submit"
-                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Update</button>
+                class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-md text-base transition">
+                Update
+            </button>
         </div>
     </form>
 </x-app-layout>

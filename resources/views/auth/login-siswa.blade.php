@@ -1,0 +1,51 @@
+<x-guest-layout>
+    <div class="login-card">
+        <x-auth-session-status class="mb-4" :status="session('status')" />
+
+        <div class="text-center mb-4">
+            <h2 class="text-2xl fw-bold text-gray-800">Login Siswa</h2>
+        </div>
+
+        <form method="POST" action="{{ route('siswa.login.store') }}">
+            @csrf
+            <div class="mb-3 text-start">
+                <x-input-label for="login" :value="__('NIS / Email')" />
+                <x-text-input id="login" class="form-control mt-1" type="text" name="login" :value="old('login')"
+                    required autofocus autocomplete="login" />
+                <x-input-error :messages="$errors->get('login')" class="mt-2" />
+            </div>
+
+            <div class="mb-3 text-start">
+                <x-input-label for="password" :value="__('Password')" />
+                <x-text-input id="password" class="form-control mt-1" type="password" name="password" required
+                    autocomplete="current-password" />
+                <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            </div>
+
+            <div class="mb-3 form-check text-start">
+                <input id="remember_me" type="checkbox" class="form-check-input" name="remember">
+                <label for="remember_me" class="form-check-label">{{ __('Ingat saya') }}</label>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                @if (Route::has('password.request'))
+                    <a class="text-decoration-underline text-sm text-muted" href="{{ route('password.request') }}">
+                        {{ __('Lupa Password?') }}
+                    </a>
+                @endif
+                <button type="submit" class="btn btn-primary">
+                    {{ __('Log in') }}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="info-box">
+        <h6><i class="bi bi-info-circle-fill me-1"></i> Informasi</h6>
+        <ul class="mb-0 ps-3">
+            <li>Pastikan Anda menggunakan akun yang sesuai dengan peran Anda.</li>
+            <li>Hubungi admin jika mengalami masalah saat login.</li>
+            <li>Absensi hanya bisa dilakukan pada jam yang telah ditentukan.</li>
+        </ul>
+    </div>
+</x-guest-layout>

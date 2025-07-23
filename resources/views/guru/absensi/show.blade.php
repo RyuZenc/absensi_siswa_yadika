@@ -6,8 +6,6 @@
         <p class="text-gray-600">{{ $jadwal->hari }}, {{ date('H:i', strtotime($jadwal->jam_mulai)) }} -
             {{ date('H:i', strtotime($jadwal->jam_selesai)) }}</p>
     </div>
-
-    <!-- Opsi Absensi Kode -->
     <div class="mb-8 p-4 bg-blue-50 rounded-lg">
         <h3 class="font-semibold text-lg mb-2">Absensi dengan Kode</h3>
 
@@ -20,7 +18,6 @@
                 {{ $sesiAbsen->kode_absen }}
             </p>
             <p id="countdown-timer" class="text-base text-center text-gray-700 font-semibold">
-                <!-- Timer akan diisi oleh JavaScript -->
             </p>
         </div>
 
@@ -88,6 +85,12 @@
                 <button type="submit"
                     class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Simpan Absensi
                     Manual</button>
+            </div>
+            <div>
+                <a href="{{ route('guru.absensi.export', $sesiAbsen->id) }}"
+                    class="inline-block mb-4 bg-green-600 hover:bg-green-700 text-white font-semibold text-sm py-2 px-4 rounded-lg shadow transition duration-200">
+                    Export ke Excel
+                </a>
             </div>
         </form>
     </div>

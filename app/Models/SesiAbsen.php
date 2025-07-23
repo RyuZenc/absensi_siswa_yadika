@@ -16,28 +16,16 @@ class SesiAbsen extends Model
         'berlaku_hingga' => 'datetime',
     ];
 
-    /**
-     * Relasi many-to-one ke model Jadwal.
-     * Setiap sesi absensi mengacu pada satu jadwal.
-     */
     public function jadwal()
     {
         return $this->belongsTo(Jadwal::class);
     }
 
-    /**
-     * Relasi many-to-one ke model Guru.
-     * Setiap sesi absensi dibuat oleh satu guru.
-     */
     public function guru()
     {
         return $this->belongsTo(Guru::class);
     }
 
-    /**
-     * Relasi one-to-many ke model Absensi.
-     * Satu sesi absensi memiliki banyak data kehadiran siswa.
-     */
     public function absensis()
     {
         return $this->hasMany(Absensi::class);

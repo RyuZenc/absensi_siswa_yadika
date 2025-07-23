@@ -10,6 +10,9 @@ use App\Models\Absensi;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use App\Exports\AbsensiExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
 
 class AbsensiController extends Controller
 {
@@ -123,6 +126,14 @@ class AbsensiController extends Controller
             );
         }
 
-        return redirect()->route('guru.dashboard')->with('success', 'Absensi berhasil disimpan.');
+        return redirect()->back()->with('success', 'Absensi berhasil disimpan.');
+    }
+
+    public function exportExcel($id)
+    {
+        $sesi = \App\Models\SesiAbsen::with(['absensis.siswa', 'jadwal.mapel', 'jadwal.kelas'])->findOrFail($id);
+        $filename = 'absensi_' . $sesi->jadwal->kelas->nama_kelas . '_' . $sesi->tanggal . '.xlsx';
+
+        return Excel::download(new AbsensiExport($sesi), $filename);
     }
 }

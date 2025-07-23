@@ -31,20 +31,30 @@ class SiswaImport implements ToModel, WithHeadingRow
      */
     public function model(array $row)
     {
-        // Menggunakan trim() untuk menghapus spasi ekstra di awal/akhir nama kelas
-        $kelas = Kelas::where('nama_kelas', trim($row['nama_kelas']))->first();
+        $kelasParts = explode(' - ', trim($row['nama_kelas']));
 
-        // Jika kelas tidak ditemukan
-        if (!$kelas) {
-            // Tambahkan nama kelas yang bermasalah ke dalam array (jika belum ada)
+        if (count($kelasParts) !== 2) {
             if (!in_array($row['nama_kelas'], $this->notFoundClasses)) {
                 $this->notFoundClasses[] = $row['nama_kelas'];
             }
-            // Lewati baris ini
             return null;
         }
 
-        // Jika kelas ditemukan, lanjutkan proses
+        $tingkat = $kelasParts[0];
+        $nama_kelas = $kelasParts[1];
+
+        // Cari kelas berdasarkan tingkat dan nama_kelas
+        $kelas = Kelas::where('tingkat', $tingkat)
+            ->where('nama_kelas', $nama_kelas)
+            ->first();
+
+        if (!$kelas) {
+            if (!in_array($row['nama_kelas'], $this->notFoundClasses)) {
+                $this->notFoundClasses[] = $row['nama_kelas'];
+            }
+            return null;
+        }
+
         $user = null;
         DB::transaction(function () use ($row, $kelas, &$user) {
             $user = User::create([
@@ -55,12 +65,11 @@ class SiswaImport implements ToModel, WithHeadingRow
             ]);
 
             $user->siswa()->create([
-                'nama_lengkap'  => $row['nama_lengkap'],
-                'nis'           => $row['nis'],
-                'kelas_id'      => $kelas->id,
+                'nama_lengkap' => $row['nama_lengkap'],
+                'nis'          => $row['nis'],
+                'kelas_id'     => $kelas->id,
             ]);
 
-            // Tambahkan hitungan untuk baris yang berhasil diimpor
             $this->importedRowCount++;
         });
 

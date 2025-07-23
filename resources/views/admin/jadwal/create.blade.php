@@ -4,20 +4,22 @@
     <form action="{{ route('admin.jadwal.store') }}" method="POST">
         @csrf
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Kelas -->
             <div>
                 <label for="kelas_id" class="block text-sm font-medium text-gray-700">Kelas</label>
                 <select name="kelas_id" id="kelas_id"
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    <option value="">-- Pilih Kelas --</option>
                     @foreach ($kelas as $k)
-                        <option value="{{ $k->id }}">{{ $k->nama_kelas }}</option>
+                        <option value="{{ $k->id }}" {{ old('kelas_id') == $k->id ? 'selected' : '' }}>
+                            {{ $k->tingkat . ' - ' . $k->nama_kelas }}
+                        </option>
                     @endforeach
                 </select>
                 @error('kelas_id')
                     <span class="text-red-500 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <!-- Mapel -->
+
             <div>
                 <label for="mapel_id" class="block text-sm font-medium text-gray-700">Mata Pelajaran</label>
                 <select name="mapel_id" id="mapel_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">

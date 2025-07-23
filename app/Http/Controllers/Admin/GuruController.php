@@ -29,7 +29,7 @@ class GuruController extends Controller
             });
         }
 
-        $gurus = $query->paginate(15);
+        $gurus = $query->paginate(10);
         $gurus->appends(['search' => $search]);
 
         return view('admin.guru.index', compact('gurus', 'search'));

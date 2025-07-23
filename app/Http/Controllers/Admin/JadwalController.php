@@ -51,7 +51,7 @@ class JadwalController extends Controller
 
     public function edit(Jadwal $jadwal)
     {
-        // Mengambil semua data master untuk mengisi dropdown pada form edit
+
         $gurus = Guru::orderBy('nama_lengkap')->get();
         $mapels = Mapel::orderBy('nama_mapel')->get();
         $kelas = Kelas::orderBy('nama_kelas')->get();
@@ -60,7 +60,7 @@ class JadwalController extends Controller
 
     public function update(Request $request, Jadwal $jadwal)
     {
-        // Validasi input dari form edit
+
         $request->validate([
             'guru_id' => 'required|exists:gurus,id',
             'mapel_id' => 'required|exists:mapels,id',
@@ -76,7 +76,7 @@ class JadwalController extends Controller
 
     public function destroy(Jadwal $jadwal)
     {
-        // Menghapus data jadwal dari database
+
         try {
             $jadwal->delete();
             return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil dihapus.');

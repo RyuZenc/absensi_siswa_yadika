@@ -44,7 +44,8 @@
                                 {{ date('H:i', strtotime($jadwal->jam_mulai)) }} -
                                 {{ date('H:i', strtotime($jadwal->jam_selesai)) }}
                             </td>
-                            <td class="py-3 px-4">{{ $jadwal->kelas->nama_kelas }}</td>
+                            <td class="py-3 px-4">{{ $jadwal->kelas->tingkat . ' - ' . $jadwal->kelas->nama_kelas }}
+                            </td>
                             <td class="py-3 px-4">{{ $jadwal->mapel->nama_mapel }}</td>
                             <td class="py-3 px-4">{{ $jadwal->guru->nama_lengkap }}</td>
                             <td class="py-3 px-4">

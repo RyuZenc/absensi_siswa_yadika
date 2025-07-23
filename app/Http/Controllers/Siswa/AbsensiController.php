@@ -7,68 +7,76 @@ use Illuminate\Http\Request;
 use App\Models\SesiAbsen;
 use App\Models\Absensi;
 use App\Models\Jadwal;
-use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class AbsensiController extends Controller
 {
     public function dashboard()
     {
-        $hariIni = Carbon::now()->isoFormat('dddd');
         $siswa = Auth::user()->siswa;
+        $tanggalHariIni = Carbon::today()->toDateString();
+        $hariIni = Carbon::now()->isoFormat('dddd');
 
-        $jadwals = Jadwal::where('kelas_id', $siswa->kelas_id)
+        // Ambil jadwal siswa hari ini
+        $jadwalHariIni = Jadwal::with(['mapel', 'guru', 'kelas'])
+            ->where('kelas_id', $siswa->kelas_id)
             ->where('hari', $hariIni)
-            ->orderBy('jam_mulai', 'asc')
+            ->orderBy('jam_mulai')
             ->get();
 
+        $sesiAbsenHariIni = SesiAbsen::whereIn('jadwal_id', $jadwalHariIni->pluck('id'))
+            ->where('tanggal', $tanggalHariIni)
+            ->whereNotNull('kode_absen')
+            ->first();
+
+        // Ambil riwayat absensi terbaru siswa
         $riwayatAbsensi = Absensi::where('siswa_id', $siswa->id)
-            ->latest()
-            ->take(5)
+            ->with(['sesiAbsen.jadwal.mapel'])
+            ->orderBy('tanggal', 'desc')
+            ->limit(5)
             ->get();
 
-        return view('siswa.dashboard', compact('jadwals', 'riwayatAbsensi'));
+
+        return view('siswa.dashboard', compact('jadwalHariIni', 'sesiAbsenHariIni', 'riwayatAbsensi'));
     }
 
     public function store(Request $request)
     {
-        $request->validate(['kode_absen' => 'required|string|size:6']);
+        $request->validate([
+            'kode_absen' => 'required|string|size:6',
+        ]);
 
-        $kode = Str::upper($request->kode_absen);
         $siswa = Auth::user()->siswa;
+        $tanggalHariIni = Carbon::today()->toDateString();
 
-        $sesiAbsen = SesiAbsen::where('kode_absen', $kode)->first();
+        $sesiAbsen = SesiAbsen::where('kode_absen', strtoupper($request->kode_absen))
+            ->where('tanggal', $tanggalHariIni)
+            ->whereHas('jadwal', function ($query) use ($siswa) {
+                $query->where('kelas_id', $siswa->kelas_id);
+            })
+            ->where('berlaku_hingga', '>', Carbon::now())
+            ->first();
 
         if (!$sesiAbsen) {
-            return back()->with('error', 'Kode absensi tidak ditemukan.');
+            return back()->withErrors(['kode_absen' => 'Kode absensi tidak valid, sudah kadaluarsa, atau bukan untuk kelas Anda.'])->withInput();
         }
 
-        $waktuMulai = Carbon::parse($sesiAbsen->tanggal . ' ' . $sesiAbsen->jadwal->jam_mulai);
+        $sudahAbsen = Absensi::where('sesi_absen_id', $sesiAbsen->id)
+            ->where('siswa_id', $siswa->id)
+            ->exists();
 
-        if (Carbon::now()->isBefore($waktuMulai)) {
-            return back()->with('error', 'Sesi absensi untuk kelas ini belum dimulai.');
+        if ($sudahAbsen) {
+            return back()->withErrors(['kode_absen' => 'Anda sudah absen untuk sesi ini.']);
         }
 
-        if (Carbon::now()->gt($sesiAbsen->berlaku_hingga)) {
-            return back()->with('error', 'Kode absensi sudah kedaluwarsa.');
-        }
+        Absensi::create([
+            'sesi_absen_id' => $sesiAbsen->id,
+            'siswa_id' => $siswa->id,
+            'tanggal' => $tanggalHariIni,
+            'status' => 'hadir',
+        ]);
 
-        if ($sesiAbsen->jadwal->kelas_id != $siswa->kelas_id) {
-            return back()->with('error', 'Anda tidak terdaftar di kelas ini.');
-        }
-
-        Absensi::updateOrCreate(
-            [
-                'sesi_absen_id' => $sesiAbsen->id,
-                'siswa_id' => $siswa->id,
-                'tanggal' => $sesiAbsen->tanggal,
-            ],
-            [
-                'status' => 'hadir',
-            ]
-        );
-
-        return back()->with('success', 'Anda berhasil melakukan absensi!');
+        return back()->with('success', 'Absensi berhasil direkam!');
     }
 }

@@ -29,8 +29,6 @@ class AbsensiController extends Controller
         return view('guru.dashboard', compact('jadwals'));
     }
 
-    // --- FUNGSI YANG HILANG SUDAH DITAMBAHKAN KEMBALI ---
-    // Menampilkan daftar semua kelas yang diajar oleh guru
     public function daftarKelas()
     {
         $guruId = Auth::user()->guru->id;
@@ -47,9 +45,7 @@ class AbsensiController extends Controller
 
         return view('guru.kelas.index', compact('jadwals'));
     }
-    // --- AKHIR FUNGSI BARU ---
 
-    // Menampilkan halaman untuk melakukan absensi
     public function show(Jadwal $jadwal)
     {
         $tanggalHariIni = Carbon::today()->toDateString();
@@ -76,18 +72,15 @@ class AbsensiController extends Controller
         return view('guru.absensi.show', compact('jadwal', 'sesiAbsen', 'siswas', 'absensiSudahAda'));
     }
 
-    // Membuat kode absen unik
     public function createCode(Request $request, SesiAbsen $sesiAbsen)
     {
-        // Validasi input durasi dari guru
+
         $request->validate([
             'durasi' => 'required|integer|min:1|max:60', // Durasi 1-60 menit
         ]);
 
-        // Ubah tipe data input 'durasi' menjadi integer
         $durasiMenit = (int) $request->input('durasi');
 
-        // Logika Batas Waktu yang Diperbaiki dengan durasi dinamis
         $waktuSekarang = Carbon::now();
         $waktuBatasDurasi = $waktuSekarang->copy()->addMinutes($durasiMenit);
 
@@ -105,7 +98,6 @@ class AbsensiController extends Controller
         return back()->with('success', "Kode absensi berhasil dibuat dan berlaku selama {$durasiMenit} menit (atau hingga jam pelajaran selesai).");
     }
 
-    // Menyimpan data absensi yang diinput guru secara manual
     public function storeManual(Request $request, SesiAbsen $sesiAbsen)
     {
         $request->validate([
@@ -127,6 +119,16 @@ class AbsensiController extends Controller
         }
 
         return redirect()->back()->with('success', 'Absensi berhasil disimpan.');
+    }
+
+    public function cancelCode(SesiAbsen $sesiAbsen)
+    {
+        $sesiAbsen->update([
+            'kode_absen' => null,
+            'berlaku_hingga' => Carbon::now(),
+        ]);
+
+        return back()->with('success', 'Kode absensi berhasil dibatalkan.');
     }
 
     public function exportExcel($id)

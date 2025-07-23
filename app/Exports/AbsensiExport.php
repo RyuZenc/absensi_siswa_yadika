@@ -2,26 +2,45 @@
 
 namespace App\Exports;
 
+use App\Models\SesiAbsen;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class AbsensiExport implements FromView
+class AbsensiExport implements FromView, ShouldAutoSize
 {
-    protected $sesi;
+    protected $sesiAbsen;
 
-    public function __construct($sesi)
+    public function __construct(SesiAbsen $sesiAbsen)
     {
-        $this->sesi = $sesi;
+        $this->sesiAbsen = $sesiAbsen;
     }
 
     public function view(): View
     {
-        $absensis = $this->sesi->absensis()->with('siswa')->get();
+        $dataAbsensi = [];
+
+        foreach ($this->sesiAbsen->jadwal->kelas->siswas as $siswa) {
+            $dataAbsensi[$siswa->id] = [
+                'nama_siswa' => $siswa->nama_lengkap,
+                'status' => 'Alpha',
+            ];
+        }
+
+        foreach ($this->sesiAbsen->absensis as $absensi) {
+            if (isset($dataAbsensi[$absensi->siswa_id])) {
+                $dataAbsensi[$absensi->siswa_id]['status'] = ucfirst($absensi->status);
+            }
+        }
+
+        usort($dataAbsensi, function ($a, $b) {
+            return strcmp($a['nama_siswa'], $b['nama_siswa']);
+        });
+
 
         return view('exports.absensi', [
-            'absensis' => $absensis,
-            'jadwal' => $this->sesi->jadwal,
-            'tanggal' => $this->sesi->tanggal,
+            'sesiAbsen' => $this->sesiAbsen,
+            'absensis' => $dataAbsensi,
         ]);
     }
 }

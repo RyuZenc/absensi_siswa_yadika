@@ -9,7 +9,6 @@
     <div class="mb-8 p-4 bg-blue-50 rounded-lg">
         <h3 class="font-semibold text-lg mb-2">Absensi dengan Kode</h3>
 
-        <!-- Kontainer untuk kode yang aktif (awalnya disembunyikan jika tidak ada kode aktif) -->
         <div id="kode-aktif-container" @if (!$sesiAbsen->kode_absen || \Carbon\Carbon::now()->isAfter($sesiAbsen->berlaku_hingga)) style="display: none;" @endif
             data-waktu-berlaku="{{ $sesiAbsen->berlaku_hingga->toIso8601String() }}">
 
@@ -19,9 +18,15 @@
             </p>
             <p id="countdown-timer" class="text-base text-center text-gray-700 font-semibold">
             </p>
+
+            <form action="{{ route('guru.absensi.cancelCode', $sesiAbsen->id) }}" method="POST" class="mt-4">
+                @csrf
+                <button type="submit"
+                    class="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Batalkan
+                    Kode</button>
+            </form>
         </div>
 
-        <!-- Kontainer untuk form buat kode baru (awalnya disembunyikan jika ada kode aktif) -->
         <div id="form-buat-kode-container" @if ($sesiAbsen->kode_absen && \Carbon\Carbon::now()->isBefore($sesiAbsen->berlaku_hingga)) style="display: none;" @endif>
 
             <p class="text-gray-700 mb-2">Buat kode unik agar siswa dapat melakukan absensi mandiri.</p>
@@ -43,7 +48,6 @@
         </div>
     </div>
 
-    <!-- Opsi Absensi Manual -->
     <div>
         <h3 class="font-semibold text-lg mb-4">Absensi Manual</h3>
         <form action="{{ route('guru.absensi.storeManual', $sesiAbsen->id) }}" method="POST">
@@ -94,8 +98,6 @@
             </div>
         </form>
     </div>
-
-    {{-- PUSH SCRIPT --}}
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -103,26 +105,42 @@
                 const formContainer = document.getElementById('form-buat-kode-container');
                 const countdownElement = document.getElementById('countdown-timer');
 
-                if (kodeContainer && countdownElement && kodeContainer.style.display !== 'none') {
-                    const waktuBerlaku = new Date(kodeContainer.dataset.waktuBerlaku).getTime();
+                function updateVisibility() {
+                    const hasActiveCode = kodeContainer.style.display !== 'none';
+                    if (hasActiveCode) {
+                        formContainer.style.display = 'none';
+                    } else {
+                        formContainer.style.display = 'block';
+                    }
+                }
 
-                    const countdownInterval = setInterval(function() {
-                        const sekarang = new Date().getTime();
-                        const sisaWaktu = waktuBerlaku - sekarang;
+                if (kodeContainer && countdownElement) {
+                    const waktuBerlakuData = kodeContainer.dataset.waktuBerlaku;
+                    if (waktuBerlakuData) {
+                        const waktuBerlaku = new Date(waktuBerlakuData).getTime();
 
-                        if (sisaWaktu > 0) {
-                            const menit = Math.floor((sisaWaktu % (1000 * 60 * 60)) / (1000 * 60));
-                            const detik = Math.floor((sisaWaktu % (1000 * 60)) / 1000);
-                            countdownElement.textContent =
-                                `Sisa Waktu: ${String(menit).padStart(2, '0')}:${String(detik).padStart(2, '0')}`;
-                        } else {
-                            clearInterval(countdownInterval);
-                            countdownElement.textContent = 'Waktu habis!';
+                        const countdownInterval = setInterval(function() {
+                            const sekarang = new Date().getTime();
+                            const sisaWaktu = waktuBerlaku - sekarang;
 
-                            kodeContainer.style.display = 'none';
-                            formContainer.style.display = 'block';
-                        }
-                    }, 1000);
+                            if (sisaWaktu > 0) {
+                                const menit = Math.floor((sisaWaktu % (1000 * 60 * 60)) / (1000 * 60));
+                                const detik = Math.floor((sisaWaktu % (1000 * 60)) / 1000);
+                                countdownElement.textContent =
+                                    `Sisa Waktu: ${String(menit).padStart(2, '0')}:${String(detik).padStart(2, '0')}`;
+                                kodeContainer.style.display = 'block';
+                                updateVisibility();
+                            } else {
+                                clearInterval(countdownInterval);
+                                countdownElement.textContent = 'Waktu habis!';
+                                kodeContainer.style.display = 'none';
+                                updateVisibility();
+                            }
+                        }, 1000);
+                    } else {
+                        kodeContainer.style.display = 'none';
+                        updateVisibility();
+                    }
                 }
             });
         </script>

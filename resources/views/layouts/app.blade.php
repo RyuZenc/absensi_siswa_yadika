@@ -105,6 +105,13 @@
                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
                             <div class="px-4 py-2 text-sm text-gray-700 border-b font-semibold">
                                 {{ Auth::user()->name }}
+                                @if (Auth::user()->role === 'siswa' && Auth::user()->siswa)
+                                    <p class="text-xs text-gray-500 font-normal">NIS: {{ Auth::user()->siswa->nis }}
+                                    </p>
+                                @endif
+                                @if (Auth::user()->role === 'guru' && Auth::user()->guru)
+                                    <p class="text-xs text-gray-500 font-normal">NIP: {{ Auth::user()->guru->nip }}</p>
+                                @endif
                             </div>
                             <a href="{{ route('profile.edit') }}"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">

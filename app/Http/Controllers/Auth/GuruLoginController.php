@@ -21,9 +21,8 @@ class GuruLoginController extends Controller
 
         if (Auth::user()->role !== 'guru') {
             Auth::logout();
-            // Arahkan kembali ke halaman login guru yang benar
             return redirect()->route('guru.login')->withErrors([
-                'email' => 'Akun ini tidak memiliki akses sebagai guru.',
+                'login' => 'Akun ini tidak memiliki akses sebagai guru.',
             ]);
         }
 

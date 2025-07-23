@@ -29,7 +29,8 @@
                     @forelse ($jadwals as $jadwal)
                         <tr class="border-b">
                             <td class="py-3 px-4">{{ $loop->iteration }}</td>
-                            <td class="py-3 px-4">{{ $jadwal->kelas->nama_kelas }}</td>
+                            <td class="py-3 px-4">{{ $jadwal->kelas->tingkat . ' - ' . $jadwal->kelas->nama_kelas }}
+                            </td>
                             <td class="py-3 px-4">{{ $jadwal->mapel->nama_mapel }}</td>
                             <td class="py-3 px-4">
                                 @php

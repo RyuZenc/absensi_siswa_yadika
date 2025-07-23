@@ -86,6 +86,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/absensi/{jadwal}', [GuruAbsensiController::class, 'show'])->name('absensi.show');
         Route::get('/absensi/export/{id}', [\App\Http\Controllers\Guru\AbsensiController::class, 'exportExcel'])->name('absensi.export');
         Route::post('/absensi/{sesiAbsen}/kode', [GuruAbsensiController::class, 'createCode'])->name('absensi.createCode');
+        Route::post('/absensi/{sesiAbsen}/batal-kode', [GuruAbsensiController::class, 'cancelCode'])->name('absensi.cancelCode');
         Route::post('/absensi/{sesiAbsen}/manual', [GuruAbsensiController::class, 'storeManual'])->name('absensi.storeManual');
     });
 

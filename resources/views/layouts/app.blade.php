@@ -126,10 +126,19 @@
                 {{ $slot }}
             </div>
 
+            @if (session('success'))
+                <x-toast type="success" :message="session('success')" />
+            @endif
+
+            @if (session('error'))
+                <x-toast type="error" :message="session('error')" />
+            @endif
+
             <footer class="text-center text-gray-500 mt-8 py-4 shrink-0">
                 Made & Design with <span class="text-red-500">❤</span>
             </footer>
         </main>
+
 
     </div>
     @stack('scripts')

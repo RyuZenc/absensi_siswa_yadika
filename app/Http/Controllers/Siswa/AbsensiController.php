@@ -78,4 +78,18 @@ class AbsensiController extends Controller
 
         return back()->with('success', 'Anda berhasil melakukan absensi!');
     }
+
+    public function jadwal()
+    {
+        $siswa = Auth::user()->siswa;
+
+        $jadwals = \App\Models\Jadwal::with(['mapel', 'guru'])
+            ->where('kelas_id', $siswa->kelas_id)
+            ->orderByRaw("FIELD(hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu')")
+            ->orderBy('jam_mulai')
+            ->get()
+            ->groupBy('hari');
+
+        return view('siswa.jadwal.index', compact('jadwals'));
+    }
 }

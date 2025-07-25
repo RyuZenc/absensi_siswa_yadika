@@ -102,6 +102,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['isSiswa'])->prefix('siswa')->name('siswa.')->group(function () {
         Route::get('/dashboard', [SiswaAbsensiController::class, 'dashboard'])->name('dashboard');
         Route::post('/absensi', [SiswaAbsensiController::class, 'store'])->name('absensi.store');
+        Route::get('/jadwal', [SiswaAbsensiController::class, 'jadwal'])->name('jadwal.index');
     });
 });
 

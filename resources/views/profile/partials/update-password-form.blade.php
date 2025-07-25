@@ -11,6 +11,7 @@
 
     <form method="post" action="{{ route('password.update') }}" class="mt-6 space-y-6">
         @csrf
+        <input type="text" name="username" autocomplete="username" class="hidden" />
         @method('put')
 
         <div>

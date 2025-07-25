@@ -43,9 +43,10 @@ class SiswaController extends Controller
 
     public function create()
     {
-        $kelas = Kelas::orderBy('nama_kelas')->get();
+        $kelas = Kelas::orderBy('tingkat')->orderBy('nama_kelas')->get();
         return view('admin.siswa.create', compact('kelas'));
     }
+
 
     public function store(Request $request)
     {
@@ -77,9 +78,10 @@ class SiswaController extends Controller
 
     public function edit(Siswa $siswa)
     {
-        $kelas = Kelas::orderBy('nama_kelas')->get();
+        $kelas = Kelas::orderBy('tingkat')->orderBy('nama_kelas')->get();
         return view('admin.siswa.edit', compact('siswa', 'kelas'));
     }
+
 
     public function update(Request $request, Siswa $siswa)
     {

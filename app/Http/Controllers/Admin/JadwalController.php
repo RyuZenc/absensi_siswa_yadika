@@ -13,7 +13,16 @@ class JadwalController extends Controller
 {
     public function index()
     {
-        $jadwals = Jadwal::with(['guru', 'mapel', 'kelas'])->orderBy('hari')->orderBy('jam_mulai')->get();
+        $jadwals = Jadwal::with(['guru', 'mapel', 'kelas'])
+            ->join('kelas', 'jadwals.kelas_id', '=', 'kelas.id')
+            ->orderBy('kelas.tingkat')
+            ->orderBy('kelas.nama_kelas')
+            ->orderBy('hari')
+            ->orderBy('jam_mulai')
+            ->select('jadwals.*')
+            ->get()
+            ->groupBy('kelas_id');
+
         return view('admin.jadwal.index', compact('jadwals'));
     }
 
@@ -22,7 +31,7 @@ class JadwalController extends Controller
         // Mengambil semua data master yang dibutuhkan untuk form
         $gurus = Guru::orderBy('nama_lengkap')->get();
         $mapels = Mapel::orderBy('nama_mapel')->get();
-        $kelas = Kelas::orderBy('nama_kelas')->get();
+        $kelas = Kelas::orderBy('tingkat')->orderBy('nama_kelas')->get();
         return view('admin.jadwal.create', compact('gurus', 'mapels', 'kelas'));
     }
 
@@ -54,7 +63,7 @@ class JadwalController extends Controller
 
         $gurus = Guru::orderBy('nama_lengkap')->get();
         $mapels = Mapel::orderBy('nama_mapel')->get();
-        $kelas = Kelas::orderBy('nama_kelas')->get();
+        $kelas = Kelas::orderBy('tingkat')->orderBy('nama_kelas')->get();
         return view('admin.jadwal.edit', compact('jadwal', 'gurus', 'mapels', 'kelas'));
     }
 

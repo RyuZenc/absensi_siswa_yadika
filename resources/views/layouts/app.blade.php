@@ -104,7 +104,14 @@
                         <div x-show="open" @click.away="open = false" x-transition
                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
                             <div class="px-4 py-2 text-sm text-gray-700 border-b font-semibold">
-                                {{ Auth::user()->name }}
+                                {{ Auth::user()->name }} <br>
+                                @if (Auth::user()->role === 'siswa')
+                                    <span class="text-xs text-gray-500">NIS:
+                                        {{ Auth::user()->siswa->nis ?? '-' }}</span>
+                                @elseif (Auth::user()->role === 'guru')
+                                    <span class="text-xs text-gray-500">NIP:
+                                        {{ Auth::user()->guru->nip ?? '-' }}</span>
+                                @endif
                             </div>
                             <a href="{{ route('profile.edit') }}"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -132,6 +139,10 @@
 
             @if (session('error'))
                 <x-toast type="error" :message="session('error')" />
+            @endif
+
+            @if (session('info'))
+                <x-toast type="info" :message="session('info')" />
             @endif
 
             <footer class="text-center text-gray-500 mt-8 py-4 shrink-0">

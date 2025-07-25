@@ -6,11 +6,11 @@
         @forelse($jadwals as $jadwal)
             <div class="bg-gray-50 p-4 rounded-lg shadow">
                 <h3 class="font-bold text-lg">{{ $jadwal->mapel->nama_mapel }}</h3>
-                <p class="text-gray-600">{{ $jadwal->kelas->nama_kelas }}</p>
+                <p class="text-gray-800 font-medium">{{ $jadwal->kelas->tingkat }} - {{ $jadwal->kelas->nama_kelas }}</p>
                 <p class="text-sm text-gray-500 mt-2">{{ date('H:i', strtotime($jadwal->jam_mulai)) }} -
                     {{ date('H:i', strtotime($jadwal->jam_selesai)) }}</p>
                 <a href="{{ route('guru.absensi.show', $jadwal->id) }}"
-                    class="mt-4 inline-block bg-gray-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded full text-center">
+                    class="mt-4 inline-block bg-green-700 hover:bg-green-500 text-white font-bold py-2 px-4 rounded full text-center">
                     Mulai Absensi
                 </a>
             </div>

@@ -9,3 +9,15 @@
 .sort-btn:hover {
     text-decoration: underline;
 }
+
+.sort-btn-jadwal {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-size: 0.8rem;
+}
+
+.sort-btn-jadwal:hover {
+    text-decoration: underline;
+}

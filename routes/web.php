@@ -9,11 +9,13 @@ use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\MapelController;
 use App\Http\Controllers\Admin\GuruController;
 use App\Http\Controllers\Admin\SiswaController;
+use App\Http\Controllers\Admin\LaporanAbsensiController;
 use App\Http\Controllers\Guru\AbsensiController as GuruAbsensiController;
 use App\Http\Controllers\Siswa\AbsensiController as SiswaAbsensiController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\Auth\GuruLoginController;
 use App\Http\Controllers\Auth\SiswaLoginController;
+
 
 
 // Route untuk halaman awal
@@ -77,6 +79,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('mapel', MapelController::class);
         Route::resource('guru', GuruController::class);
         Route::resource('siswa', SiswaController::class);
+
+        Route::get('laporan-absensi', [LaporanAbsensiController::class, 'index'])->name('laporan.absensi.index');
+        Route::get('laporan-absensi/export', [LaporanAbsensiController::class, 'export'])->name('laporan.absensi.export');
     });
 
     // GRUP ROUTE GURU
@@ -86,6 +91,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/absensi/{jadwal}', [GuruAbsensiController::class, 'show'])->name('absensi.show');
         Route::post('/absensi/{sesiAbsen}/kode', [GuruAbsensiController::class, 'createCode'])->name('absensi.createCode');
         Route::post('/absensi/{sesiAbsen}/manual', [GuruAbsensiController::class, 'storeManual'])->name('absensi.storeManual');
+        Route::get('/absensi/{sesiAbsen}/export', [GuruAbsensiController::class, 'export'])->name('absensi.export');
+        Route::post('/absensi/update-status', [GuruAbsensiController::class, 'updateStatus'])->name('absensi.updateStatus');
+
+        Route::get('/riwayat-absensi', [GuruAbsensiController::class, 'riwayat'])->name('riwayat.riwayat');
+        Route::get('/riwayat-absensi/{id}', [GuruAbsensiController::class, 'detail'])->name('riwayat.detail');
     });
 
     // GRUP ROUTE SISWA

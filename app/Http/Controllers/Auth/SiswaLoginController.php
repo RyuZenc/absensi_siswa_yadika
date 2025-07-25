@@ -21,9 +21,9 @@ class SiswaLoginController extends Controller
 
         if (Auth::user()->role !== 'siswa') {
             Auth::logout();
-            // Arahkan kembali ke halaman login siswa yang benar
+
             return redirect()->route('siswa.login')->withErrors([
-                'email' => 'Akun ini tidak memiliki akses sebagai siswa.',
+                'login' => 'Akun ini tidak memiliki akses sebagai siswa.',
             ]);
         }
 

@@ -5,16 +5,18 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Kelas;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule; // Import Rule untuk validasi
+use Illuminate\Validation\Rule;
 
 class KelasController extends Controller
 {
-    // Definisikan pilihan tingkat di satu tempat
     private $tingkatOptions = ['X', 'XI', 'XII'];
 
     public function index()
     {
-        $kelas = Kelas::withCount('siswas')->get();
+        $kelas = Kelas::withCount('siswas')
+            ->orderByRaw("FIELD(tingkat, 'X', 'XI', 'XII')")
+            ->orderBy('nama_kelas')
+            ->get();
         return view('admin.kelas.index', compact('kelas'));
     }
 
@@ -26,12 +28,22 @@ class KelasController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_kelas' => 'required|string|max:255|unique:kelas,nama_kelas',
+            'nama_kelas' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('kelas')->where(function ($query) use ($request) {
+                    return $query->where('tingkat', $request->tingkat);
+                }),
+            ],
             'tingkat' => ['required', Rule::in($this->tingkatOptions)],
         ]);
+
         Kelas::create($request->all());
+
         return redirect()->route('admin.kelas.index')->with('success', 'Kelas baru berhasil ditambahkan.');
     }
+
 
     public function edit(Kelas $kela) // Variabel $kela akan diubah menjadi $kelas
     {
@@ -44,10 +56,19 @@ class KelasController extends Controller
     public function update(Request $request, Kelas $kela)
     {
         $request->validate([
-            'nama_kelas' => 'required|string|max:255|unique:kelas,nama_kelas,' . $kela->id,
+            'nama_kelas' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('kelas')->where(function ($query) use ($request) {
+                    return $query->where('tingkat', $request->tingkat);
+                })->ignore($kela->id),
+            ],
             'tingkat' => ['required', Rule::in($this->tingkatOptions)],
         ]);
+
         $kela->update($request->all());
+
         return redirect()->route('admin.kelas.index')->with('success', 'Data kelas berhasil diperbarui.');
     }
 

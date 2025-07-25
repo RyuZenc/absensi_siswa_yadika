@@ -6,3 +6,6 @@
 
 <x-sidebar.link href="{{ route('guru.kelas.index') }}" icon="bi-collection-fill" title="Kelas yang Diajar"
     :active="request()->routeIs('guru.kelas.*')" :sidebarOpen="$sidebarOpen" />
+
+<x-sidebar.link href="{{ route('guru.riwayat.riwayat') }}" icon="bi-clock-history" title="Riwayat Absensi"
+    :active="request()->routeIs('guru.riwayat.riwayat') || request()->routeIs('guru.riwayat.detail')" :sidebarOpen="$sidebarOpen" />

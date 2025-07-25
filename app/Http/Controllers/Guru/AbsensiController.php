@@ -10,6 +10,8 @@ use App\Models\Absensi;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\AbsensiHarianExport;
 
 class AbsensiController extends Controller
 {
@@ -26,32 +28,23 @@ class AbsensiController extends Controller
         return view('guru.dashboard', compact('jadwals'));
     }
 
-    // --- FUNGSI YANG HILANG SUDAH DITAMBAHKAN KEMBALI ---
-    // Menampilkan daftar semua kelas yang diajar oleh guru
     public function daftarKelas()
     {
         $guruId = Auth::user()->guru->id;
 
-        // Ambil semua jadwal unik berdasarkan kelas dan mapel untuk guru ini
         $jadwals = Jadwal::with(['kelas', 'mapel'])
             ->where('guru_id', $guruId)
             ->orderBy('kelas_id')
-            ->orderBy('mapel_id')
+            ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu')")
             ->get()
-            ->unique(function ($item) {
-                return $item['kelas_id'] . '-' . $item['mapel_id'];
-            });
+            ->groupBy('kelas_id');
 
         return view('guru.kelas.index', compact('jadwals'));
     }
-    // --- AKHIR FUNGSI BARU ---
 
-    // Menampilkan halaman untuk melakukan absensi
     public function show(Jadwal $jadwal)
     {
         $tanggalHariIni = Carbon::today()->toDateString();
-
-        // Cari atau buat sesi absensi untuk jadwal ini pada hari ini
         $sesiAbsen = SesiAbsen::firstOrCreate(
             [
                 'jadwal_id' => $jadwal->id,
@@ -63,46 +56,35 @@ class AbsensiController extends Controller
             ]
         );
 
-        // Ambil semua siswa di kelas yang sesuai dengan jadwal
         $siswas = $jadwal->kelas->siswas()->orderBy('nama_lengkap')->get();
-
-        // Ambil data absensi yang sudah ada untuk sesi ini
         $absensiSudahAda = Absensi::where('sesi_absen_id', $sesiAbsen->id)
             ->pluck('status', 'siswa_id');
 
         return view('guru.absensi.show', compact('jadwal', 'sesiAbsen', 'siswas', 'absensiSudahAda'));
     }
 
-    // Membuat kode absen unik
     public function createCode(Request $request, SesiAbsen $sesiAbsen)
     {
-        // Validasi input durasi dari guru
         $request->validate([
-            'durasi' => 'required|integer|min:1|max:60', // Durasi 1-60 menit
+            'durasi' => 'required|integer|min:1|max:60',
         ]);
 
-        // Ubah tipe data input 'durasi' menjadi integer
+        $batasWaktuMaksimum = Carbon::parse($sesiAbsen->tanggal . ' ' . $sesiAbsen->jadwal->jam_selesai)->addMinutes(60);
+        if (now()->greaterThan($batasWaktuMaksimum)) {
+            return back()->with('error', 'Anda sudah terlalu lama dari jadwal. Tidak disarankan membuat kode absen.');
+        }
+
         $durasiMenit = (int) $request->input('durasi');
-
-        // Logika Batas Waktu yang Diperbaiki dengan durasi dinamis
-        $waktuSekarang = Carbon::now();
-        $waktuBatasDurasi = $waktuSekarang->copy()->addMinutes($durasiMenit);
-
-        // Ambil jam selesai dari jadwal terkait
-        $jamSelesaiJadwal = Carbon::parse($sesiAbsen->tanggal . ' ' . $sesiAbsen->jadwal->jam_selesai);
-
-        // Tentukan waktu berlaku yang sebenarnya: waktu yang paling cepat antara (sekarang + durasi) dan jam selesai pelajaran.
-        $waktuBerlakuSebenarnya = $waktuBatasDurasi->isBefore($jamSelesaiJadwal) ? $waktuBatasDurasi : $jamSelesaiJadwal;
+        $waktuBerlaku = now()->addMinutes($durasiMenit);
 
         $sesiAbsen->update([
             'kode_absen' => Str::upper(Str::random(6)),
-            'berlaku_hingga' => $waktuBerlakuSebenarnya
+            'berlaku_hingga' => $waktuBerlaku,
         ]);
 
-        return back()->with('success', "Kode absensi berhasil dibuat dan berlaku selama {$durasiMenit} menit (atau hingga jam pelajaran selesai).");
+        return back()->with('success', "Kode absensi berhasil dibuat dan berlaku hingga {$waktuBerlaku->format('H:i')}.");
     }
 
-    // Menyimpan data absensi yang diinput guru secara manual
     public function storeManual(Request $request, SesiAbsen $sesiAbsen)
     {
         $request->validate([
@@ -123,6 +105,54 @@ class AbsensiController extends Controller
             );
         }
 
-        return redirect()->route('guru.dashboard')->with('success', 'Absensi berhasil disimpan.');
+        return redirect()->back()->with('success', 'Absensi berhasil disimpan.');
+    }
+
+    public function export($sesiAbsenId)
+    {
+        return Excel::download(new AbsensiHarianExport($sesiAbsenId), 'absensi_harian.xlsx');
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $request->validate([
+            'siswa_id' => 'required|exists:siswas,id',
+            'sesi_absen_id' => 'required|exists:sesi_absens,id',
+            'status' => 'required|in:hadir,sakit,izin,alpha',
+        ]);
+
+        $tanggal = SesiAbsen::where('id', $request->sesi_absen_id)->value('tanggal');
+        $absensi = Absensi::updateOrCreate(
+            [
+                'sesi_absen_id' => $request->sesi_absen_id,
+                'siswa_id' => $request->siswa_id
+            ],
+            [
+                'status' => $request->status,
+                'tanggal' => $tanggal,
+            ]
+        );
+
+        return response()->json(['success' => true, 'data' => $absensi]);
+    }
+
+    public function riwayat()
+    {
+        $guru = Auth::user()->guru;
+
+        $sesiAbsens = SesiAbsen::with(['jadwal.mapel', 'jadwal.kelas'])
+            ->whereHas('jadwal', fn($q) => $q->where('guru_id', $guru->id))
+            ->orderByDesc('tanggal')
+            ->get();
+
+        return view('guru.riwayat.riwayat', compact('sesiAbsens'));
+    }
+
+    public function detail($id)
+    {
+        $sesi = SesiAbsen::with(['jadwal.mapel', 'jadwal.kelas', 'absensis.siswa'])
+            ->findOrFail($id);
+
+        return view('guru.riwayat.detail', compact('sesi'));
     }
 }

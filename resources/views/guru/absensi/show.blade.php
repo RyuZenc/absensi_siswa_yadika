@@ -2,16 +2,17 @@
     @section('header', 'Lakukan Absensi')
 
     <div class="mb-6 p-4 border rounded-lg">
-        <h2 class="text-xl font-bold">{{ $jadwal->mapel->nama_mapel }} - {{ $jadwal->kelas->nama_kelas }}</h2>
+        <h2 class="text-xl font-bold">
+            {{ $jadwal->mapel->nama_mapel }} - {{ $jadwal->kelas->tingkat }} {{ $jadwal->kelas->nama_kelas }}
+        </h2>
         <p class="text-gray-600">{{ $jadwal->hari }}, {{ date('H:i', strtotime($jadwal->jam_mulai)) }} -
             {{ date('H:i', strtotime($jadwal->jam_selesai)) }}</p>
     </div>
 
-    <!-- Opsi Absensi Kode -->
+
     <div class="mb-8 p-4 bg-blue-50 rounded-lg">
         <h3 class="font-semibold text-lg mb-2">Absensi dengan Kode</h3>
 
-        <!-- Kontainer untuk kode yang aktif (awalnya disembunyikan jika tidak ada kode aktif) -->
         <div id="kode-aktif-container" @if (!$sesiAbsen->kode_absen || \Carbon\Carbon::now()->isAfter($sesiAbsen->berlaku_hingga)) style="display: none;" @endif
             data-waktu-berlaku="{{ $sesiAbsen->berlaku_hingga->toIso8601String() }}">
 
@@ -20,11 +21,9 @@
                 {{ $sesiAbsen->kode_absen }}
             </p>
             <p id="countdown-timer" class="text-base text-center text-gray-700 font-semibold">
-                <!-- Timer akan diisi oleh JavaScript -->
             </p>
         </div>
 
-        <!-- Kontainer untuk form buat kode baru (awalnya disembunyikan jika ada kode aktif) -->
         <div id="form-buat-kode-container" @if ($sesiAbsen->kode_absen && \Carbon\Carbon::now()->isBefore($sesiAbsen->berlaku_hingga)) style="display: none;" @endif>
 
             <p class="text-gray-700 mb-2">Buat kode unik agar siswa dapat melakukan absensi mandiri.</p>
@@ -46,7 +45,13 @@
         </div>
     </div>
 
-    <!-- Opsi Absensi Manual -->
+    <div class="mb-4 flex justify-end">
+        <a href="{{ route('guru.absensi.export', $sesiAbsen->id) }}"
+            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-block">
+            Export Absensi ke Excel
+        </a>
+    </div>
+
     <div>
         <h3 class="font-semibold text-lg mb-4">Absensi Manual</h3>
         <form action="{{ route('guru.absensi.storeManual', $sesiAbsen->id) }}" method="POST">
@@ -55,6 +60,8 @@
                 <table class="min-w-full bg-white">
                     <thead>
                         <tr>
+                            <th class="text-left py-2 px-4">No</th>
+                            <th class="text-left py-2 px-4">NIS</th>
                             <th class="text-left py-2 px-4">Nama Siswa</th>
                             <th class="text-center py-2 px-4">Hadir</th>
                             <th class="text-center py-2 px-4">Sakit</th>
@@ -65,34 +72,34 @@
                     <tbody>
                         @foreach ($siswas as $siswa)
                             <tr class="border-b">
+                                <td class="py-2 px-4">{{ $loop->iteration }}</td>
+                                <td class="py-2 px-4">{{ $siswa->nis }}</td>
                                 <td class="py-2 px-4">{{ $siswa->nama_lengkap }}</td>
-                                @php $status = $absensiSudahAda[$siswa->id] ?? 'alpha'; @endphp
-                                <td class="text-center"><input type="radio" name="absensi[{{ $siswa->id }}]"
-                                        value="hadir" {{ $status == 'hadir' ? 'checked' : '' }}
-                                        class="form-radio h-5 w-5 text-green-600"></td>
-                                <td class="text-center"><input type="radio" name="absensi[{{ $siswa->id }}]"
-                                        value="sakit" {{ $status == 'sakit' ? 'checked' : '' }}
-                                        class="form-radio h-5 w-5 text-yellow-600"></td>
-                                <td class="text-center"><input type="radio" name="absensi[{{ $siswa->id }}]"
-                                        value="izin" {{ $status == 'izin' ? 'checked' : '' }}
-                                        class="form-radio h-5 w-5 text-blue-600"></td>
-                                <td class="text-center"><input type="radio" name="absensi[{{ $siswa->id }}]"
-                                        value="alpha" {{ $status == 'alpha' ? 'checked' : '' }}
-                                        class="form-radio h-5 w-5 text-red-600"></td>
+                                @php $status = $absensiSudahAda[$siswa->id] ?? null; @endphp
+                                @foreach (['hadir' => 'green', 'sakit' => 'yellow', 'izin' => 'blue', 'alpha' => 'red'] as $value => $color)
+                                    <td class="text-center">
+                                        <input type="radio" name="absensi[{{ $siswa->id }}]"
+                                            value="{{ $value }}"
+                                            class="form-radio h-5 w-5 text-{{ $color }}-600 absensi-radio"
+                                            data-siswa-id="{{ $siswa->id }}" data-status="{{ $value }}"
+                                            {{ $status == $value ? 'checked' : '' }}>
+                                    </td>
+                                @endforeach
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
+            <!--
             <div class="mt-6 flex justify-end">
                 <button type="submit"
                     class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Simpan Absensi
                     Manual</button>
             </div>
+            -->
         </form>
     </div>
 
-    {{-- PUSH SCRIPT --}}
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -121,6 +128,37 @@
                         }
                     }, 1000);
                 }
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const radios = document.querySelectorAll('.absensi-radio');
+
+                radios.forEach(function(radio) {
+                    radio.addEventListener('change', function() {
+                        const siswaId = this.dataset.siswaId;
+                        const status = this.dataset.status;
+
+                        fetch("{{ route('guru.absensi.updateStatus') }}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                },
+                                body: JSON.stringify({
+                                    siswa_id: siswaId,
+                                    status: status,
+                                    sesi_absen_id: {{ $sesiAbsen->id }}
+                                }),
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('Sukses update absensi:', data);
+                            })
+                            .catch(error => {
+                                console.error('Gagal update absensi:', error);
+                            });
+                    });
+                });
             });
         </script>
     @endpush

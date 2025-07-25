@@ -14,6 +14,8 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class GuruController extends Controller
 {
+    /* The `index` method in the `GuruController` is responsible for displaying a list of gurus with
+    search functionality. */
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -62,6 +64,7 @@ class GuruController extends Controller
             $user->guru()->create([
                 'nama_lengkap' => $request->nama_lengkap,
                 'nip' => $request->nip,
+                'role' => 'guru',
             ]);
         });
 

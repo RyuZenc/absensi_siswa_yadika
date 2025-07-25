@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('nama_lengkap');
             $table->text('alamat')->nullable();
             $table->string('no_telp')->nullable();
+            $table->enum('role', ['guru', 'wali_kelas'])->default('guru');
             $table->timestamps();
         });
     }

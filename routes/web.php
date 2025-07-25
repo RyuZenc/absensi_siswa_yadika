@@ -15,7 +15,8 @@ use App\Http\Controllers\Siswa\AbsensiController as SiswaAbsensiController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\Auth\GuruLoginController;
 use App\Http\Controllers\Auth\SiswaLoginController;
-
+use App\Http\Controllers\Admin\RoleAssignmentController;
+use App\Http\Controllers\WaliKelasController;
 
 
 // Route untuk halaman awal
@@ -82,6 +83,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('laporan-absensi', [LaporanAbsensiController::class, 'index'])->name('laporan.absensi.index');
         Route::get('laporan-absensi/export', [LaporanAbsensiController::class, 'export'])->name('laporan.absensi.export');
+
+        Route::get('/roles/assign', [RoleAssignmentController::class, 'index'])->name('roles.assign');
+        Route::post('/roles/assign-wali-kelas', [RoleAssignmentController::class, 'assignWaliKelas'])->name('roles.assignWaliKelas');
+        Route::delete('/roles/remove-wali-kelas', [RoleAssignmentController::class, 'removeWaliKelas'])->name('roles.removeWaliKelas');
     });
 
     // GRUP ROUTE GURU
@@ -96,6 +101,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/riwayat-absensi', [GuruAbsensiController::class, 'riwayat'])->name('riwayat.riwayat');
         Route::get('/riwayat-absensi/{id}', [GuruAbsensiController::class, 'detail'])->name('riwayat.detail');
+    });
+
+    Route::middleware(['auth', 'verified', 'isWaliKelas'])->prefix('walikelas')->name('walikelas.')->group(function () {
+        Route::get('/cek-kelas', [WaliKelasController::class, 'cekKelas'])->name('cek_kelas');
+        Route::get('/laporan/absensi/export', [WaliKelasController::class, 'export'])->name('laporan.absensi.export');
     });
 
     // GRUP ROUTE SISWA

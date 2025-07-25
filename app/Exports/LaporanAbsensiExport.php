@@ -88,12 +88,11 @@ class LaporanAbsensiExport implements FromArray, ShouldAutoSize, WithEvents
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
+                $totalCols = 2 + count($this->mapelList); // No + Nama Siswa + mapel
+                $lastColumn = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($totalCols);
+
                 // Tambah baris header keterangan
                 $sheet->insertNewRowBefore(1, 2);
-
-                $totalCols = 2 + count($this->mapelList); // No + Nama Siswa + mapel
-
-                $lastColumn = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($totalCols);
 
                 // Baris keterangan
                 $sheet->setCellValue('A1', 'Absensi Kelas: ' . $this->kelasNama);
@@ -105,7 +104,10 @@ class LaporanAbsensiExport implements FromArray, ShouldAutoSize, WithEvents
                 // Merge Header Baris 3-4
                 $sheet->mergeCells('A3:A4'); // No
                 $sheet->mergeCells('B3:B4'); // Nama Siswa
-                $sheet->mergeCells("C3:{$lastColumn}3"); // Mapel
+
+                if (count($this->mapelList) > 0) {
+                    $sheet->mergeCells("C3:{$lastColumn}3"); // Mapel
+                }
 
                 // Styling
                 $rowCount = count($this->array()) + 2;
@@ -125,12 +127,14 @@ class LaporanAbsensiExport implements FromArray, ShouldAutoSize, WithEvents
                 $sheet->getStyle("A1:{$lastColumn}4")->getFont()->setBold(true);
                 $sheet->getStyle("A1:A2")->getFont()->setSize(13);
 
-                $sheet->getStyle("A3:{$lastColumn}4")->applyFromArray([
-                    'fill' => [
-                        'fillType' => 'solid',
-                        'startColor' => ['argb' => 'FFDCE6F1'],
-                    ],
-                ]);
+                if (count($this->mapelList) > 0) {
+                    $sheet->getStyle("A3:{$lastColumn}4")->applyFromArray([
+                        'fill' => [
+                            'fillType' => 'solid',
+                            'startColor' => ['argb' => 'FFDCE6F1'],
+                        ],
+                    ]);
+                }
             },
         ];
     }

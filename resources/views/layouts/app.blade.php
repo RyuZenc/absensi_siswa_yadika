@@ -46,7 +46,7 @@
                 </button>
             </div>
 
-            <nav class="mt-10 flex flex-col gap-y-2 overflow-y-auto overflow-x-hidden scrollbar-thin-dark">
+            <nav class="mt-10 space-y-2 flex-col gap-y-2 overflow-y-auto overflow-x-hidden scrollbar-thin-dark">
                 @includeWhen(Auth::user()->role === 'admin', 'components.sidebar.admin', [
                     'sidebarOpen' => true,
                 ])

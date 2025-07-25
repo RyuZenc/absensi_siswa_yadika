@@ -33,9 +33,9 @@
                         </button>
                     </form>
                 </div>
-                <div class="w-full sm:w-auto">
+                <div class="w-full md:w-auto flex items-center">
                     <a href="{{ route('admin.guru.create') }}"
-                        class="block text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md text-sm transition w-full sm:w-auto">
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md text-sm transition text-center w-full sm:w-auto">
                         + Tambah Guru
                     </a>
                 </div>

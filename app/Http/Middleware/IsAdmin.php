@@ -14,6 +14,6 @@ class IsAdmin
         if (Auth::check() && Auth::user()->role == 'admin') {
             return $next($request);
         }
-        abort(403, 'Akses Ditolak. Anda Bukan Admin.');
+        return redirect('/')->with('error', 'Akses Ditolak. Anda Bukan Admin.');
     }
 }

@@ -21,17 +21,20 @@ class GuruController extends Controller
         $search = $request->input('search');
         $query = Guru::with('user');
 
+        $query = Guru::with('user');
+
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama_lengkap', 'like', "%{$search}%")
                     ->orWhere('nip', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($userQuery) use ($search) {
-                        $userQuery->where('email', 'like', "%{$search}%")->orWhere('username', 'like', "%{$search}%");
+                        $userQuery->where('email', 'like', "%{$search}%")
+                            ->orWhere('username', 'like', "%{$search}%");
                     });
             });
         }
 
-        $gurus = $query->paginate(10);
+        $gurus = $query->orderBy('created_at', 'desc')->paginate(10);
         $gurus->appends(['search' => $search]);
 
         return view('admin.guru.index', compact('gurus', 'search'));
@@ -47,9 +50,9 @@ class GuruController extends Controller
         $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:255'],
             'nip' => ['required', 'string', 'max:255', 'unique:gurus'],
-            'username' => ['required', 'string', 'max:255', 'unique:users', 'alpha_dash'],
+            'username' => ['nullable', 'string', 'max:255', 'unique:users', 'alpha_dash'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Rules\Password::min(6)],
         ]);
 
         DB::transaction(function () use ($request) {
@@ -81,9 +84,9 @@ class GuruController extends Controller
         $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:255'],
             'nip' => ['required', 'string', 'max:255', 'unique:gurus,nip,' . $guru->id],
-            'username' => ['required', 'string', 'max:255', 'unique:users,username,' . $guru->user_id, 'alpha_dash'],
+            'username' => ['nullable', 'string', 'max:255', 'unique:users,username,' . $guru->user_id, 'alpha_dash'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $guru->user_id],
-            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+            'password' => ['nullable', 'confirmed', Rules\Password::min(6)],
         ]);
 
         DB::transaction(function () use ($request, $guru) {

@@ -35,7 +35,7 @@ class SiswaController extends Controller
             });
         }
 
-        $siswas = $query->paginate(10);
+        $siswas = $query->orderBy('created_at', 'desc')->paginate(10);
         $siswas->appends(['search' => $search]);
 
         return view('admin.siswa.index', compact('siswas', 'search'));
@@ -55,7 +55,7 @@ class SiswaController extends Controller
             'nis' => ['required', 'string', 'max:255', 'unique:siswas'],
             'kelas_id' => ['required', 'exists:kelas,id'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Rules\Password::min(6)],
         ]);
 
         DB::transaction(function () use ($request) {
@@ -90,7 +90,7 @@ class SiswaController extends Controller
             'nis' => ['required', 'string', 'max:255', 'unique:siswas,nis,' . $siswa->id],
             'kelas_id' => ['required', 'exists:kelas,id'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $siswa->user_id],
-            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+            'password' => ['nullable', 'confirmed', Rules\Password::min(6)],
         ]);
 
         DB::transaction(function () use ($request, $siswa) {

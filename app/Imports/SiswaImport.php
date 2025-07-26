@@ -29,6 +29,10 @@ class SiswaImport implements ToModel, WithHeadingRow
      *
      * @return \Illuminate\Database\Eloquent\Model|null
      */
+
+    //nama_lengkap,email,password,nis,nama_kelas
+    //Dina Putri,dina@mail.com,rahasia,20230001,XI - IPA 1
+
     public function model(array $row)
     {
         $kelasParts = explode(' - ', trim($row['nama_kelas']));

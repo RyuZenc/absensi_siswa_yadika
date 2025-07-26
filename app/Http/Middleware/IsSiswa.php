@@ -14,6 +14,6 @@ class IsSiswa
         if (Auth::check() && Auth::user()->role == 'siswa') {
             return $next($request);
         }
-        abort(403, 'Akses Ditolak. Anda Bukan Siswa.');
+        return redirect('/')->with('error', 'Akses Ditolak. Anda Bukan Siswa.');
     }
 }

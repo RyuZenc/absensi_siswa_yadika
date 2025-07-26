@@ -15,6 +15,6 @@ class IsWaliKelas
             return $next($request);
         }
 
-        abort(403, 'Unauthorized. Anda tidak memiliki akses Wali Kelas.');
+        return redirect('/')->with('error', 'Akses hanya untuk Wali Kelas.');
     }
 }

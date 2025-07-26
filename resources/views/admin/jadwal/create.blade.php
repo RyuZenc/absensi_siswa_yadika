@@ -52,6 +52,7 @@
                     <option>Rabu</option>
                     <option>Kamis</option>
                     <option>Jumat</option>
+                    <option>Sabtu</option>
                 </select>
                 @error('hari')
                     <span class="text-red-500 text-sm">{{ $message }}</span>

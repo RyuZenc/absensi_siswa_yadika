@@ -7,8 +7,8 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'https://your-frontend.vercel.app', // replace with your actual frontend
-        'http://localhost:5173',            // for local development
+        'https://your-vercel-frontend.vercel.app',
+        'http://localhost:5173',
     ],
 
     'allowed_origins_patterns' => [],

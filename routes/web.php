@@ -105,7 +105,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware(['auth', 'verified', 'isWaliKelas'])->prefix('walikelas')->name('walikelas.')->group(function () {
         Route::get('/cek-kelas', [WaliKelasController::class, 'cekKelas'])->name('cek_kelas');
-        Route::get('/laporan/absensi/export', [WaliKelasController::class, 'export'])->name('laporan.absensi.export');
+        Route::get('/laporan/absensi/export', [WaliKelasController::class, 'export'])->name('laporan.absensi.export.walikelas');
     });
 
     // GRUP ROUTE SISWA

@@ -39,7 +39,7 @@
             <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded w-full md:w-auto">Preview</button>
             @if (request('kelas_id') && request('tanggal'))
                 {{-- Sesuaikan rute export untuk Wali Kelas --}}
-                <a href="{{ route('walikelas.laporan.absensi.export', ['kelas_id' => request('kelas_id'), 'tanggal' => request('tanggal')]) }}"
+                <a href="{{ route('walikelas.laporan.absensi.export.walikelas', ['kelas_id' => request('kelas_id'), 'tanggal' => request('tanggal')]) }}"
                     class="bg-green-600 text-white px-4 py-2 rounded w-full md:w-auto text-center">Export Excel</a>
             @endif
         </div>

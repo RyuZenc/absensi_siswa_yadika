@@ -1,7 +1,5 @@
 <x-app-layout>
     @section('header', 'Laporan Absensi Harian')
-
-    {{-- Filter Form --}}
     <form method="GET" class="mb-6 flex flex-col md:flex-row gap-4 items-stretch md:items-end">
         <div class="w-full md:w-auto">
             <label for="kelas_id" class="block text-sm font-medium">Kelas</label>

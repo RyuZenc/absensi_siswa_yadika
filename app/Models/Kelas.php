@@ -30,7 +30,7 @@ class Kelas extends Model
         return $this->hasMany(Jadwal::class);
     }
 
-        public function waliKelas()
+    public function waliKelas()
     {
         return $this->belongsTo(Guru::class, 'guru_id');
     }

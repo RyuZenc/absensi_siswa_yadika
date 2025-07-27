@@ -2,30 +2,24 @@
 
 namespace App\Http\Controllers\Guru;
 
-use Carbon\Carbon;
-use App\Models\Siswa;
+use App\Exports\RekapAbsensiGuruExport;
+use App\Http\Controllers\Controller;
 use App\Models\Jadwal;
 use App\Models\SesiAbsen;
+use App\Models\Siswa;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\RekapAbsensiGuruExport;
 
 class RekapController extends Controller
 {
-    /**
-     * Menampilkan halaman rekap absensi dengan filter.
-     */
-    public function rekap(Request $request)
+    public function index(Request $request)
     {
         $guru = Auth::user()->guru;
-        $guruId = $guru->id;
 
-        // Ambil jadwal guru beserta mapel dan kelas
-        $jadwals = Jadwal::where('guru_id', $guruId)->with(['mapel', 'kelas'])->get();
+        $jadwals = Jadwal::where('guru_id', $guru->id)->with(['mapel', 'kelas'])->get();
 
-        // Ambil mapel dan kelas unik yang diampu guru
         $mapels = $jadwals->map->mapel->unique('id')->sortBy('nama_mapel');
         $kelasList = $jadwals->map->kelas->unique('id')->sortBy('nama_kelas');
 
@@ -33,49 +27,22 @@ class RekapController extends Controller
         $dates = [];
         $summary = [];
         $filterInfo = [];
+        $selectedKelas = null;
 
         if ($request->has('filter')) {
-            $request->validate([
-                'mapel_id' => 'required|exists:mapels,id',
-                'kelas_id' => 'required|exists:kelas,id',
-                'range' => 'required|string',
-                'start_date' => 'nullable|date|required_if:range,custom',
-                'end_date' => 'nullable|date|after_or_equal:start_date|required_if:range,custom',
-            ]);
-
-            $selectedMapelId = $request->input('mapel_id');
-            $selectedKelasId = $request->input('kelas_id');
-            $range = $request->input('range');
-
-            $startDate = null;
-            $endDate = null;
-            switch ($range) {
-                case 'this_week':
-                    $startDate = Carbon::now()->startOfWeek();
-                    $endDate = Carbon::now()->endOfWeek();
-                    break;
-                case 'this_month':
-                    $startDate = Carbon::now()->startOfMonth();
-                    $endDate = Carbon::now()->endOfMonth();
-                    break;
-                case 'custom':
-                    $startDate = Carbon::parse($request->input('start_date'));
-                    $endDate = Carbon::parse($request->input('end_date'));
-                    break;
-            }
+            $validated = $this->validateRequest($request);
+            list($startDate, $endDate) = $this->resolveDateRange($validated['range'], $request);
 
             if ($startDate && $endDate) {
-                $result = $this->getRekapData($guruId, $selectedKelasId, $selectedMapelId, $startDate, $endDate);
+                $result = $this->getRekapData($guru->id, $validated['kelas_id'], $validated['mapel_id'], $startDate, $endDate);
                 $rekapData = $result['students'];
                 $dates = $result['dates'];
                 $summary = $result['summary'];
-
-                $mapelInfo = $mapels->find($selectedMapelId);
-                $kelasInfo = $kelasList->firstWhere('id', $selectedKelasId);
+                $selectedKelas = $kelasList->firstWhere('id', $validated['kelas_id']);
 
                 $filterInfo = [
-                    'mapel' => $mapelInfo->nama_mapel,
-                    'kelas' => $kelasInfo->nama_kelas,
+                    'mapel' => $mapels->find($validated['mapel_id'])->nama_mapel,
+                    'kelas' => $selectedKelas,
                     'guru' => $guru->nama_lengkap,
                     'periode' => $startDate->isoFormat('D MMMM Y') . ' - ' . $endDate->isoFormat('D MMMM Y'),
                 ];
@@ -93,58 +60,31 @@ class RekapController extends Controller
         ]);
     }
 
-    /**
-     * Mengekspor data rekap absensi ke file Excel.
-     */
-    public function exportRekap(Request $request)
+    public function export(Request $request)
     {
-        $request->validate([
-            'mapel_id' => 'required|exists:mapels,id',
-            'kelas_id' => 'required|exists:kelas,id',
-            'range' => 'required|string',
-            'start_date' => 'nullable|date|required_if:range,custom',
-            'end_date' => 'nullable|date|after_or_equal:start_date|required_if:range,custom',
-        ]);
-
+        $validated = $this->validateRequest($request);
         $guru = Auth::user()->guru;
-        $range = $request->input('range');
+        list($startDate, $endDate) = $this->resolveDateRange($validated['range'], $request);
 
-        $startDate = match ($range) {
-            'this_week' => now()->startOfWeek(),
-            'this_month' => now()->startOfMonth(),
-            'custom' => Carbon::parse($request->start_date),
-        };
+        $result = $this->getRekapData($guru->id, $validated['kelas_id'], $validated['mapel_id'], $startDate, $endDate);
 
-        $endDate = match ($range) {
-            'this_week' => now()->endOfWeek(),
-            'this_month' => now()->endOfMonth(),
-            'custom' => Carbon::parse($request->end_date),
-        };
-
-        $result = $this->getRekapData($guru->id, $request->kelas_id, $request->mapel_id, $startDate, $endDate);
-
-        $jadwal = Jadwal::where([
-            'guru_id' => $guru->id,
-            'kelas_id' => $request->kelas_id,
-            'mapel_id' => $request->mapel_id,
-        ])->with(['mapel', 'kelas'])->firstOrFail();
+        $jadwal = Jadwal::where('guru_id', $guru->id)
+            ->where('kelas_id', $validated['kelas_id'])
+            ->where('mapel_id', $validated['mapel_id'])
+            ->with(['mapel', 'kelas'])
+            ->firstOrFail();
 
         $filterInfo = [
             'mapel' => $jadwal->mapel->nama_mapel,
-            'kelas' => $jadwal->kelas->nama_kelas,
             'guru' => $guru->nama_lengkap,
             'periode' => $startDate->isoFormat('D MMMM Y') . ' - ' . $endDate->isoFormat('D MMMM Y'),
         ];
 
-        $filename = 'rekap-absensi-harian-' . str_replace(' ', '_', $filterInfo['kelas']) . '-' . now()->timestamp . '.xlsx';
-        $kelas = $jadwal->kelas;
+        $filename = 'rekap-absensi-' . str_replace(' ', '_', $jadwal->kelas->nama_kelas) . '-' . now()->timestamp . '.xlsx';
 
-        return Excel::download(new RekapAbsensiGuruExport($result, $filterInfo, $kelas), $filename);
+        return Excel::download(new RekapAbsensiGuruExport($result, $filterInfo, $jadwal->kelas), $filename);
     }
 
-    /**
-     * Helper method untuk mengambil dan memproses data rekapitulasi absensi.
-     */
     private function getRekapData($guruId, $kelasId, $mapelId, $startDate, $endDate)
     {
         $sesiAbsens = SesiAbsen::whereHas('jadwal', function ($query) use ($guruId, $mapelId, $kelasId) {
@@ -153,81 +93,91 @@ class RekapController extends Controller
                 ->where('kelas_id', $kelasId);
         })
             ->whereBetween('tanggal', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
-            ->with('absensis')
+            ->with('absensis.siswa')
             ->orderBy('tanggal', 'asc')
             ->get();
 
         if ($sesiAbsens->isEmpty()) {
-            return [
-                'dates' => [],
-                'students' => [],
-                'summary' => [],
-            ];
+            return ['dates' => [], 'students' => [], 'summary' => []];
         }
 
-        $dates = $sesiAbsens->pluck('tanggal')->unique()->map(function ($date) {
-            return Carbon::parse($date)->format('d/m/Y');
-        })->sort()->values();
+        $dates = $sesiAbsens->pluck('tanggal')->unique()->map(fn($date) => Carbon::parse($date)->format('d/m'))->sort()->values();
 
         $siswas = Siswa::where('kelas_id', $kelasId)->orderBy('nama_lengkap', 'asc')->get();
+        $absensiMap = $this->buildAbsensiMap($sesiAbsens);
 
-        $absensiMap = [];
+        $rekapData = $this->buildRekapData($siswas, $dates, $absensiMap);
+        $summary = $this->calculateSummary($rekapData, $dates);
+
+        return ['dates' => $dates, 'students' => $rekapData, 'summary' => $summary];
+    }
+
+    private function validateRequest(Request $request)
+    {
+        return $request->validate([
+            'mapel_id' => 'required|exists:mapels,id',
+            'kelas_id' => 'required|exists:kelas,id',
+            'range' => 'required|string',
+            'start_date' => 'nullable|date|required_if:range,custom',
+            'end_date' => 'nullable|date|after_or_equal:start_date|required_if:range,custom',
+        ]);
+    }
+
+    private function resolveDateRange($range, Request $request)
+    {
+        return match ($range) {
+            'this_week' => [now()->startOfWeek(), now()->endOfWeek()],
+            'this_month' => [now()->startOfMonth(), now()->endOfMonth()],
+            'custom' => [Carbon::parse($request->start_date), Carbon::parse($request->end_date)],
+            default => [now()->startOfWeek(), now()->endOfWeek()],
+        };
+    }
+
+    private function buildAbsensiMap($sesiAbsens)
+    {
+        $map = [];
         foreach ($sesiAbsens as $sesi) {
-            $tanggalFormatted = Carbon::parse($sesi->tanggal)->format('d/m/Y');
+            $tanggalFormatted = Carbon::parse($sesi->tanggal)->format('d/m');
             foreach ($sesi->absensis as $absen) {
                 if ($absen->siswa_id) {
-                    $absensiMap[$absen->siswa_id][$tanggalFormatted] = $absen->status;
+                    $map[$absen->siswa_id][$tanggalFormatted] = ucfirst($absen->status);
                 }
             }
         }
+        return $map;
+    }
 
-        $rekapData = [];
+    private function buildRekapData($siswas, $dates, $absensiMap)
+    {
+        $rekap = [];
         foreach ($siswas as $siswa) {
             $absensiSiswa = [];
             foreach ($dates as $date) {
-                $status = $absensiMap[$siswa->id][$date] ?? '-';
-
-                switch (strtolower($status)) {
-                    case 'hadir':
-                        $absensiSiswa[$date] = 'Hadir';
-                        break;
-                    case 'sakit':
-                        $absensiSiswa[$date] = 'Sakit';
-                        break;
-                    case 'izin':
-                        $absensiSiswa[$date] = 'Izin';
-                        break;
-                    case 'alpha':
-                        $absensiSiswa[$date] = 'Alfa';
-                        break;
-                    default:
-                        $absensiSiswa[$date] = '-';
-                        break;
-                }
+                $absensiSiswa[$date] = $absensiMap[$siswa->id][$date] ?? '-';
             }
-            $rekapData[] = [
+            $rekap[] = [
                 'nis' => $siswa->nis,
                 'nama_lengkap' => $siswa->nama_lengkap,
                 'absensi' => $absensiSiswa,
             ];
         }
+        return $rekap;
+    }
 
+    private function calculateSummary($rekapData, $dates)
+    {
         $summary = [];
         foreach ($dates as $date) {
-            $dailyTotals = ['Hadir' => 0, 'Sakit' => 0, 'Izin' => 0, 'Alfa' => 0];
+            $dailyTotals = ['Hadir' => 0, 'Sakit' => 0, 'Izin' => 0, 'Alfa' => 0, '-' => 0];
             foreach ($rekapData as $student) {
-                $status = $student['absensi'][$date];
-                if (array_key_exists($status, $dailyTotals)) {
-                    $dailyTotals[$status]++;
+                $status = $student['absensi'][$date] ?? '-';
+                $statusKey = $status === 'Alpha' ? 'Alfa' : $status;
+                if (array_key_exists($statusKey, $dailyTotals)) {
+                    $dailyTotals[$statusKey]++;
                 }
             }
             $summary[$date] = $dailyTotals;
         }
-
-        return [
-            'dates' => $dates,
-            'students' => $rekapData,
-            'summary' => $summary,
-        ];
+        return $summary;
     }
 }

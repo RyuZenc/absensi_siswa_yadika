@@ -12,12 +12,23 @@
 
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Filter Rekapitulasi</h3>
 
-                    {{-- Form Filter --}}
                     <form action="{{ route('guru.rekap.index') }}" method="GET" class="pb-4 border-b">
-                        {{-- (Form filter tetap sama seperti sebelumnya) --}}
                         <input type="hidden" name="filter" value="true">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <!-- Filter Mapel -->
+                            <div>
+                                <label for="kelas_id" class="block font-medium text-sm text-gray-700">Kelas</label>
+                                <select name="kelas_id" id="kelas_id" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                    <option value="">Pilih Kelas</option>
+                                    @foreach ($kelasList as $kelas)
+                                        <option value="{{ $kelas->id }}"
+                                            {{ old('kelas_id', $inputs['kelas_id'] ?? '') == $kelas->id ? 'selected' : '' }}>
+                                            {{ $kelas->tingkat . ' - ' . $kelas->nama_kelas }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
                             <div>
                                 <label for="mapel_id" class="block font-medium text-sm text-gray-700">Mata
                                     Pelajaran</label>
@@ -33,22 +44,6 @@
                                 </select>
                             </div>
 
-                            <!-- Filter Kelas -->
-                            <div>
-                                <label for="kelas_id" class="block font-medium text-sm text-gray-700">Kelas</label>
-                                <select name="kelas_id" id="kelas_id" required
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                    <option value="">Pilih Kelas</option>
-                                    @foreach ($kelasList as $kelas)
-                                        <option value="{{ $kelas->id }}"
-                                            {{ old('kelas_id', $inputs['kelas_id'] ?? '') == $kelas->id ? 'selected' : '' }}>
-                                            {{ $kelas->tingkat . ' - ' . $kelas->nama_kelas }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <!-- Filter Range -->
                             <div>
                                 <label for="range" class="block font-medium text-sm text-gray-700">Rentang
                                     Waktu</label>
@@ -61,7 +56,6 @@
                             </div>
                         </div>
 
-                        <!-- Custom Date Range (muncul jika 'Custom' dipilih) -->
                         <div x-show="range === 'custom'" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                             <div>
                                 <label for="start_date" class="block font-medium text-sm text-gray-700">Tanggal
@@ -92,7 +86,6 @@
                         </div>
                     </form>
 
-                    {{-- Hasil Rekap --}}
                     @if (!empty($rekapData))
                         <div class="mt-6">
                             <h3 class="text-lg font-semibold">Hasil Rekapitulasi Absensi</h3>

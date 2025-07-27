@@ -1,4 +1,3 @@
-{{-- File: resources/views/walikelas/cek_kelas.blade.php --}}
 <x-app-layout>
     <h2 class="text-xl font-semibold mb-4">Cek Absensi Kelas</h2>
     <x-slot name="header">

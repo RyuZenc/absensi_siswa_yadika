@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\WaliKelas;
 
 use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\SesiAbsen;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\LaporanHarianWalikelas;
 
-class WaliKelasController extends Controller
+class AbsensiController extends Controller
 {
     public function cekKelas(Request $request)
     {

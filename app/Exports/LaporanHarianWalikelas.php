@@ -47,6 +47,9 @@ class LaporanHarianWalikelas implements FromCollection, WithHeadings, WithEvents
         $this->totalKehadiran = [];
 
         foreach ($sesiList as $sesi) {
+            if (!$sesi->jadwal || !$sesi->jadwal->mapel) {
+                continue;
+            }
             $mapel = $sesi->jadwal->mapel->nama_mapel;
 
             foreach ($sesi->absensis as $absen) {

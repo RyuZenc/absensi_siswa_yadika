@@ -16,8 +16,9 @@ use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\Auth\GuruLoginController;
 use App\Http\Controllers\Auth\SiswaLoginController;
 use App\Http\Controllers\Admin\RoleAssignmentController;
-use App\Http\Controllers\WaliKelasController;
 use App\Http\Controllers\Guru\RekapController as GuruRekapController;
+use App\Http\Controllers\WaliKelas\RekapController as WaliKelasRekapController;
+use App\Http\Controllers\WaliKelas\AbsensiController;
 
 
 // Route untuk halaman awal
@@ -104,13 +105,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/riwayat-absensi', [GuruAbsensiController::class, 'riwayat'])->name('riwayat.riwayat');
         Route::get('/riwayat-absensi/{id}', [GuruAbsensiController::class, 'detail'])->name('riwayat.detail');
 
-        Route::get('/rekap', [GuruRekapController::class, 'rekap'])->name('rekap.index');
-        Route::get('/rekap/export', [GuruRekapController::class, 'exportRekap'])->name('rekap.export');
+        Route::get('/rekap', [GuruRekapController::class, 'index'])->name('rekap.index');
+        Route::get('/rekap/export', [GuruRekapController::class, 'export'])->name('rekap.export');
     });
 
     Route::middleware(['auth', 'verified', 'isWaliKelas'])->prefix('walikelas')->name('walikelas.')->group(function () {
-        Route::get('/cek-kelas', [WaliKelasController::class, 'cekKelas'])->name('cek_kelas');
-        Route::get('/laporan/absensi/export', [WaliKelasController::class, 'export'])->name('laporan.absensi.export.walikelas');
+        Route::get('/cek-kelas', [AbsensiController::class, 'cekKelas'])->name('cek_kelas');
+        Route::get('/laporan/absensi/export', [AbsensiController::class, 'export'])->name('laporan.absensi.export.walikelas');
+        Route::get('/rekap', [WaliKelasRekapController::class, 'index'])->name('rekap.index');
+        Route::get('/rekap/export', [WaliKelasRekapController::class, 'export'])->name('rekap.export');
     });
 
     // GRUP ROUTE SISWA

@@ -17,6 +17,7 @@ use App\Http\Controllers\Auth\GuruLoginController;
 use App\Http\Controllers\Auth\SiswaLoginController;
 use App\Http\Controllers\Admin\RoleAssignmentController;
 use App\Http\Controllers\WaliKelasController;
+use App\Http\Controllers\Guru\RekapController as GuruRekapController;
 
 
 // Route untuk halaman awal
@@ -102,6 +103,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/guru/riwayat/{id}', [GuruAbsensiController::class, 'detail'])->name('guru.riwayat.detail');
         Route::get('/riwayat-absensi', [GuruAbsensiController::class, 'riwayat'])->name('riwayat.riwayat');
         Route::get('/riwayat-absensi/{id}', [GuruAbsensiController::class, 'detail'])->name('riwayat.detail');
+
+        Route::get('/rekap', [GuruRekapController::class, 'rekap'])->name('rekap.index');
+        Route::get('/rekap/export', [GuruRekapController::class, 'exportRekap'])->name('rekap.export');
     });
 
     Route::middleware(['auth', 'verified', 'isWaliKelas'])->prefix('walikelas')->name('walikelas.')->group(function () {

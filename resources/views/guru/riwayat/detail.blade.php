@@ -7,6 +7,12 @@
         <p><strong>Kelas:</strong> {{ $sesi->jadwal->kelas->tingkat }} - {{ $sesi->jadwal->kelas->nama_kelas }}</p>
         <p><strong>Tanggal:</strong> {{ \Carbon\Carbon::parse($sesi->tanggal)->translatedFormat('l, d F Y') }}</p>
         <p><strong>Jam:</strong> {{ $sesi->jadwal->jam_mulai }} - {{ $sesi->jadwal->jam_selesai }}</p>
+        <p>
+            <strong>Hadir:</strong> {{ $absensiCounts['hadir'] }} |
+            <strong>Sakit:</strong> {{ $absensiCounts['sakit'] }} |
+            <strong>Izin:</strong> {{ $absensiCounts['izin'] }} |
+            <strong>Alpha:</strong> {{ $absensiCounts['alpha'] }}
+        </p>
     </div>
 
     <div class="overflow-x-auto">

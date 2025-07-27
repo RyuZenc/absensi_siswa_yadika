@@ -60,6 +60,27 @@ class AbsensiController extends Controller
         $absensiSudahAda = Absensi::where('sesi_absen_id', $sesiAbsen->id)
             ->pluck('status', 'siswa_id');
 
+        $absensiCounts = [
+            'hadir' => 0,
+            'sakit' => 0,
+            'izin' => 0,
+            'alpha' => 0,
+        ];
+
+        foreach ($absensiSudahAda as $status) {
+            if (isset($absensiCounts[$status])) {
+                $absensiCounts[$status]++;
+            }
+        }
+
+        return view('guru.absensi.show', compact(
+            'jadwal',
+            'sesiAbsen',
+            'siswas',
+            'absensiSudahAda',
+            'absensiCounts'
+        ));
+
         return view('guru.absensi.show', compact('jadwal', 'sesiAbsen', 'siswas', 'absensiSudahAda'));
     }
 
@@ -153,6 +174,19 @@ class AbsensiController extends Controller
         $sesi = SesiAbsen::with(['jadwal.mapel', 'jadwal.kelas', 'absensis.siswa'])
             ->findOrFail($id);
 
-        return view('guru.riwayat.detail', compact('sesi'));
+        $absensiCounts = [
+            'hadir' => 0,
+            'sakit' => 0,
+            'izin' => 0,
+            'alpha' => 0,
+        ];
+
+        foreach ($sesi->absensis as $absen) {
+            if (isset($absensiCounts[$absen->status])) {
+                $absensiCounts[$absen->status]++;
+            }
+        }
+
+        return view('guru.riwayat.detail', compact('sesi', 'absensiCounts'));
     }
 }

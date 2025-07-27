@@ -56,7 +56,9 @@
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                    <x-primary-button type="submit">Tetapkan Wali Kelas</x-primary-button>
+                    <button
+                        class="text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md text-sm transition w-full sm:w-auto"
+                        type="submit">Tetapkan Wali Kelas</button>
                 </form>
 
                 <h4 class="text-md font-semibold mt-6 mb-2">Daftar Wali Kelas yang Ditugaskan</h4>

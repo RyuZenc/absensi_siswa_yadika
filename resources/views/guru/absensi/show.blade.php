@@ -51,14 +51,25 @@
             Export Absensi ke Excel
         </a>
     </div>
-
     <div>
+        <x-confirm-modal name="hadirkan-semua"
+            message="Anda yakin ingin menandai semua siswa sebagai 'Hadir'? Ini akan mengubah status absensi semua siswa." />
+        <button type="button" id="hadirkan-semua-btn"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 m-2 rounded mb-4">
+            Hadirkan Semua
+        </button>
         <h3 class="font-semibold text-lg mb-4">Absensi Manual</h3>
         <form action="{{ route('guru.absensi.storeManual', $sesiAbsen->id) }}" method="POST">
             @csrf
-            <div class="overflow-x-auto">
+            <p>
+                <strong>Hadir:</strong> {{ $absensiCounts['hadir'] }} |
+                <strong>Sakit:</strong> {{ $absensiCounts['sakit'] }} |
+                <strong>Izin:</strong> {{ $absensiCounts['izin'] }} |
+                <strong>Alpha:</strong> {{ $absensiCounts['alpha'] }}
+            </p>
+            <div class="overflow-x-auto bg-white rounded-lg shadow-md">
                 <table class="min-w-full bg-white">
-                    <thead>
+                    <thead class="bg-gray-800 text-white">
                         <tr>
                             <th class="text-left py-2 px-4">No</th>
                             <th class="text-left py-2 px-4">NIS</th>
@@ -159,6 +170,57 @@
                             });
                     });
                 });
+            });
+
+            // Hadirkan semua siswa dengan konfirmasi
+            document.getElementById('hadirkan-semua-btn').addEventListener('click', () => {
+                window.dispatchEvent(new CustomEvent('open-modal', {
+                    detail: 'hadirkan-semua'
+                }));
+            });
+
+            window.addEventListener('confirmed', (e) => {
+                if (e.detail.modal === 'hadirkan-semua') {
+                    const semuaRadioHadir = document.querySelectorAll('input[type="radio"][value="hadir"]');
+                    const fetchPromises = []; // Definisikan array untuk menyimpan promise
+
+                    semuaRadioHadir.forEach(radio => {
+                        if (!radio.checked) {
+                            radio.checked = true;
+
+                            // Ambil info siswa
+                            const siswaId = radio.dataset.siswaId;
+                            const status = radio.value;
+
+                            // Kirim request dan simpan promise-nya
+                            const promise = fetch("{{ route('guru.absensi.updateStatus') }}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                },
+                                body: JSON.stringify({
+                                    siswa_id: siswaId,
+                                    status: status,
+                                    sesi_absen_id: {{ $sesiAbsen->id }}
+                                }),
+                            });
+
+                            fetchPromises.push(promise);
+                        }
+                    });
+
+                    // Tunggu semua promise selesai, lalu reload halaman
+                    Promise.all(fetchPromises)
+                        .then(() => {
+                            console.log('Semua absensi berhasil diperbarui');
+                            location.reload();
+                        })
+                        .catch(error => {
+                            console.error('Gagal memperbarui absensi:', error);
+                            // Opsi: Tampilkan pesan error kepada pengguna
+                        });
+                }
             });
         </script>
     @endpush

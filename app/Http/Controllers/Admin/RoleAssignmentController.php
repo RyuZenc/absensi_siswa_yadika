@@ -15,9 +15,12 @@ class RoleAssignmentController extends Controller
         // Mengambil semua guru yang bisa menjadi wali kelas (yang role-nya 'guru' atau sudah 'wali_kelas')
         $availableWaliKelas = Guru::whereIn('role', ['guru', 'wali_kelas'])->get();
         // Mengambil semua kelas
-        $kelas = Kelas::orderBy('tingkat')->get();
+        $kelas = Kelas::orderByRaw("FIELD(tingkat, 'X', 'XI', 'XII')")->get();
         // Mengambil semua penugasan wali kelas yang sudah ada
-        $waliKelasAssignments = Kelas::with('waliKelas')->whereNotNull('guru_id')->get();
+        $waliKelasAssignments = Kelas::with('waliKelas')
+            ->whereNotNull('guru_id')
+            ->orderByRaw("FIELD(tingkat, 'X', 'XI', 'XII')")
+            ->get();
 
         return view('admin.roles.assign', compact('availableWaliKelas', 'kelas', 'waliKelasAssignments'));
     }

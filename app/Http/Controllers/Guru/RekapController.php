@@ -76,6 +76,7 @@ class RekapController extends Controller
 
         $filterInfo = [
             'mapel' => $jadwal->mapel->nama_mapel,
+            'kelas' => $jadwal->kelas->tingkat . ' - ' . $jadwal->kelas->nama_kelas, // add this
             'guru' => $guru->nama_lengkap,
             'periode' => $startDate->isoFormat('D MMMM Y') . ' - ' . $endDate->isoFormat('D MMMM Y'),
         ];

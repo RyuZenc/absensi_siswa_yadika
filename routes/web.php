@@ -99,6 +99,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/absensi/{sesiAbsen}/export', [GuruAbsensiController::class, 'export'])->name('absensi.export');
         Route::post('/absensi/update-status', [GuruAbsensiController::class, 'updateStatus'])->name('absensi.updateStatus');
 
+        Route::get('/guru/riwayat/{id}', [GuruAbsensiController::class, 'detail'])->name('guru.riwayat.detail');
         Route::get('/riwayat-absensi', [GuruAbsensiController::class, 'riwayat'])->name('riwayat.riwayat');
         Route::get('/riwayat-absensi/{id}', [GuruAbsensiController::class, 'detail'])->name('riwayat.detail');
     });

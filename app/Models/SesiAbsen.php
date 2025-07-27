@@ -42,4 +42,22 @@ class SesiAbsen extends Model
     {
         return $this->hasMany(Absensi::class);
     }
+
+    public function getAbsensiCountsAttribute()
+    {
+        $counts = [
+            'hadir' => 0,
+            'sakit' => 0,
+            'izin' => 0,
+            'alpha' => 0,
+        ];
+
+        foreach ($this->absensis as $absen) {
+            if (isset($counts[$absen->status])) {
+                $counts[$absen->status]++;
+            }
+        }
+
+        return $counts;
+    }
 }

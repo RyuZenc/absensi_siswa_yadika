@@ -27,6 +27,12 @@
                             {{ $sesi->jadwal->kelas->nama_kelas }}</div>
                         <div class="text-sm text-gray-500">{{ $sesi->jadwal->jam_mulai }} -
                             {{ $sesi->jadwal->jam_selesai }}</div>
+                        <p class="text-sm text-gray-500">
+                            <strong>Hadir:</strong> {{ $sesi->absensiCounts['hadir'] }} |
+                            <strong>Sakit:</strong> {{ $sesi->absensiCounts['sakit'] }} |
+                            <strong>Izin:</strong> {{ $sesi->absensiCounts['izin'] }} |
+                            <strong>Alpha:</strong> {{ $sesi->absensiCounts['alpha'] }}
+                        </p>
                         <a href="{{ route('guru.riwayat.detail', $sesi->id) }}"
                             class="inline-block mt-2 text-blue-600 hover:underline text-sm">Lihat Detail</a>
                     </div>

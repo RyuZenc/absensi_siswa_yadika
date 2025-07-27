@@ -7,7 +7,6 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        'https://your-vercel-frontend.vercel.app',
         'http://localhost:5173',
     ],
 

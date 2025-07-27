@@ -25,10 +25,8 @@ class AppServiceProvider extends ServiceProvider
         setlocale(LC_TIME, 'id_ID.utf8');
         Carbon::setLocale('id');
 
-        /*
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
-            */
     }
 }

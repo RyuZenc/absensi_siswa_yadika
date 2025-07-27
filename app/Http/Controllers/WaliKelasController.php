@@ -58,9 +58,17 @@ class WaliKelasController extends Controller
             return redirect()->back()->with('error', 'Anda tidak memiliki akses ke kelas yang diminta.');
         }
 
+        $kelas = Kelas::find($kelasId);
+
+        if (!$kelas) {
+            return redirect()->back()->with('error', 'Kelas tidak ditemukan.');
+        }
+
+        $namaFile = 'Laporan Absensi Harian - ' . $kelas->tingkat . '-' . $kelas->nama_kelas . ' - ' . $tanggal . '.xlsx';
+
         return Excel::download(
             new LaporanHarianWalikelas($kelasId, $tanggal),
-            'Laporan Absensi Harian - ' . $kelasDiampu->nama_kelas . ' - ' . $tanggal . '.xlsx'
+            $namaFile
         );
     }
 }

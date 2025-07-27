@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\AbsensiHarianExport;
+use App\Exports\AbsensiHarianGuruExport;
 
 class AbsensiController extends Controller
 {
@@ -131,8 +131,20 @@ class AbsensiController extends Controller
 
     public function export($sesiAbsenId)
     {
-        return Excel::download(new AbsensiHarianExport($sesiAbsenId), 'absensi_harian.xlsx');
+        $sesi = SesiAbsen::with('jadwal.mapel', 'jadwal.kelas')->findOrFail($sesiAbsenId);
+
+        $tingkat = $sesi->jadwal->kelas->tingkat;
+        $namaKelas = $sesi->jadwal->kelas->nama_kelas;
+        $mapel = $sesi->jadwal->mapel->nama_mapel;
+        $tanggal = \Carbon\Carbon::parse($sesi->tanggal)->format('Y-m-d');
+
+        $fileName = "Absensi_{$tingkat}-{$namaKelas}_{$mapel}_{$tanggal}.xlsx";
+
+        $fileName = str_replace(' ', '_', $fileName);
+
+        return Excel::download(new AbsensiHarianGuruExport($sesiAbsenId), $fileName);
     }
+
 
     public function updateStatus(Request $request)
     {

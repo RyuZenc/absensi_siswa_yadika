@@ -15,6 +15,13 @@
         </p>
     </div>
 
+    <div class="mb-4 flex justify-end">
+        <a href="{{ route('guru.absensi.export', $sesi->id) }}"
+            class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-block">
+            Export Absensi ke Excel
+        </a>
+    </div>
+
     <div class="overflow-x-auto">
         <table class="min-w-full bg-white border rounded-lg shadow">
             <thead>
@@ -26,7 +33,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($sesi->absensis as $absen)
+                @foreach ($sesi->absensis->sortBy('siswa.nama_lengkap') as $absen)
                     <tr class="border-t">
                         <td class="px-4 py-2">{{ $loop->iteration }}</td>
                         <td class="px-4 py-2">{{ $absen->siswa->nama_lengkap }}</td>

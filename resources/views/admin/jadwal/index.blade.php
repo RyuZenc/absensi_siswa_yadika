@@ -1,86 +1,89 @@
 <x-app-layout>
-    @section('header', 'Manajemen Jadwal')
+    @section('header', 'Daftar Jadwal Pelajaran')
 
-    <div class="w-full">
-        <div class="flex justify-end mb-4">
-            <a href="{{ route('admin.jadwal.create') }}"
-                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition">
-                + Tambah Jadwal
-            </a>
-        </div>
+    <div class="mb-4 text-right">
+        <a href="{{ route('admin.jadwal.create') }}"
+            class="text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md text-sm transition w-full sm:w-auto">
+            Tambah Jadwal
+        </a>
+    </div>
 
-        <div class="overflow-x-auto bg-white rounded-lg shadow-md">
-            <table id="sortableTableJadwal" class="w-full px-4 bg-white text-sm">
-                <thead class="bg-gray-800 text-white">
-                    <tr>
-                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
-                            #
-                            <button class="sort-btn-jadwal ml-1" data-column="0">⬍</button>
-                        </th>
-                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Hari
-                            <button class="sort-btn-jadwal ml-1" data-column="1">⬍</button>
-                        </th>
-                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Jam
-                            <button class="sort-btn-jadwal ml-1" data-column="2">⬍</button>
-                        </th>
-                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Kelas
-                            <button class="sort-btn-jadwal ml-1" data-column="3">⬍</button>
-                        </th>
-                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Mata Pelajaran
-                            <button class="sort-btn-jadwal ml-1" data-column="4">⬍</button>
-                        </th>
-                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Guru
-                            <button class="sort-btn-jadwal ml-1" data-column="5">⬍</button>
-                        </th>
-                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="text-gray-700">
-                    @forelse ($jadwals as $kelasId => $groupedJadwal)
-                <tbody class="group-section text-gray-700">
-                    <tr class="bg-gray-100">
-                        <td colspan="7" class="px-4 py-2 font-bold">
-                            {{ $groupedJadwal->first()->kelas->tingkat . ' - ' . $groupedJadwal->first()->kelas->nama_kelas }}
-                        </td>
-                    </tr>
-
-                    @foreach ($groupedJadwal as $jadwal)
-                        <tr class="border-b data-row">
-                            <td class="py-3 px-4">{{ $loop->iteration }}</td>
-                            <td class="py-3 px-4">{{ $jadwal->hari }}</td>
-                            <td class="py-3 px-4">
-                                {{ date('H:i', strtotime($jadwal->jam_mulai)) }} -
-                                {{ date('H:i', strtotime($jadwal->jam_selesai)) }}
-                            </td>
-                            <td class="py-3 px-4">{{ $jadwal->kelas->tingkat . ' - ' . $jadwal->kelas->nama_kelas }}
-                            </td>
-                            <td class="py-3 px-4">{{ $jadwal->mapel->nama_mapel }}</td>
-                            <td class="py-3 px-4">{{ $jadwal->guru->nama_lengkap }}</td>
-                            <td class="py-3 px-4">
-                                <div class="flex gap-2">
-                                    <a href="{{ route('admin.jadwal.edit', $jadwal->id) }}"
-                                        class="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-1 px-3 rounded-md text-sm transition">Edit</a>
-                                    <form action="{{ route('admin.jadwal.destroy', $jadwal->id) }}" method="POST"
-                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus jadwal ini?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded-md text-sm transition">Hapus</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+        <div class="p-3 bg-white border-b border-gray-200">
+            @forelse ($jadwals as $kelas_id => $jadwalPerKelas)
+                <h3 class="text-lg font-semibold mb-3">{{ $jadwalPerKelas->first()->kelas->tingkat }} -
+                    {{ $jadwalPerKelas->first()->kelas->nama_kelas }}</h3>
+                <div class="overflow-x-auto bg-white rounded-lg shadow-md">
+                    <table id="sortableTable" class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-800 text-white">
+                            <tr>
+                                <th scope="col" class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                                    Hari<button class="sort-btn ml-1" data-column="0">⬍</button>
+                                </th>
+                                <th scope="col" class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                                    Jam Mulai<button class="sort-btn ml-1" data-column="1">⬍</button>
+                                </th>
+                                <th scope="col" class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                                    Jam Selesai<button class="sort-btn ml-1" data-column="2">⬍</button>
+                                </th>
+                                <th scope="col" class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                                    Mata Pelajaran<button class="sort-btn ml-1" data-column="3">⬍</button>
+                                </th>
+                                <th scope="col" class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                                    Guru Jadwal<button class="sort-btn ml-1" data-column="4">⬍</button>
+                                </th>
+                                <th scope="col" class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                                    Aksi
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            @foreach ($jadwalPerKelas as $jadwal)
+                                <tr class="border-b">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{ $jadwal->hari }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{ \Carbon\Carbon::parse($jadwal->jam_mulai)->format('H:i') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{ \Carbon\Carbon::parse($jadwal->jam_selesai)->format('H:i') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{ $jadwal->mapel->nama_mapel }}
+                                        @if ($jadwal->mapel->guru)
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{ $jadwal->guru->nama_lengkap }}
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <div class="flex flex-wrap gap-2">
+                                            <a href="{{ route('admin.jadwal.edit', $jadwal->id) }}"
+                                                class="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-1 px-3 rounded-md text-sm transition">
+                                                Edit
+                                            </a>
+                                            <form action="{{ route('admin.jadwal.destroy', $jadwal->id) }}"
+                                                method="POST"
+                                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus data jadwal ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <input type="hidden" name="search" value="{{ $search ?? '' }}">
+                                                <button type="submit"
+                                                    class="bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded-md text-sm transition">
+                                                    Hapus
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             @empty
-                <tbody>
-                    <tr>
-                        <td colspan="7" class="text-center py-4">Tidak ada data jadwal.</td>
-                    </tr>
-                </tbody>
-                @endforelse
-                </tbody>
-            </table>
+                <p class="text-center text-gray-500">Tidak ada jadwal yang tersedia.</p>
+            @endforelse
         </div>
     </div>
 </x-app-layout>

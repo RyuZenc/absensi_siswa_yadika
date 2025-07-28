@@ -19,13 +19,16 @@ class GuruImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         // Pastikan file CSV Anda memiliki header:
-        // nama_lengkap, nip, email, password
+        // nama_lengkap, nip, email, username(opsional), password
 
         $user = null;
 
         DB::transaction(function () use ($row, &$user) {
+            $username = $row['username'] ?? null;
+
             $user = User::create([
                 'name'     => $row['nama_lengkap'],
+                'username' => $username, // boleh null
                 'email'    => $row['email'],
                 'password' => Hash::make($row['password']),
                 'role'     => 'guru',

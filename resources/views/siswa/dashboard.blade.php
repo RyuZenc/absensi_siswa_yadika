@@ -95,7 +95,7 @@
 
                         <div class="mt-6">
                             <button type="submit"
-                                class="w-full bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded transition duration-300">Kirim
+                                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded transition duration-300">Kirim
                                 Absensi</button>
                         </div>
                     </form>

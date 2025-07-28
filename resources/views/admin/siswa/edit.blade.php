@@ -19,7 +19,8 @@
                 <select name="kelas_id" class="mt-1 block w-full rounded-md">
                     @foreach ($kelas as $k)
                         <option value="{{ $k->id }}" {{ $siswa->kelas_id == $k->id ? 'selected' : '' }}>
-                            {{ $k->nama_kelas }}</option>
+                            {{ $k->tingkat . ' - ' . $k->nama_kelas }}
+                        </option>
                     @endforeach
                 </select>
             </div>

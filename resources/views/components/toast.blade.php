@@ -4,6 +4,7 @@
     $colors = [
         'success' => 'bg-green-500',
         'error' => 'bg-red-500',
+        'info' => 'bg-yellow-500',
     ];
 @endphp
 

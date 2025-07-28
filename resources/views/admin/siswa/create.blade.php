@@ -20,10 +20,14 @@
                 @enderror
             </div>
             <div>
-                <label>Kelas</label>
-                <select name="kelas_id" class="mt-1 block w-full rounded-md">
+                <label class="block text-sm font-medium text-gray-700">Kelas</label>
+                <select name="kelas_id"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">-- Pilih Kelas --</option>
                     @foreach ($kelas as $k)
-                        <option value="{{ $k->id }}">{{ $k->nama_kelas }}</option>
+                        <option value="{{ $k->id }}" {{ old('kelas_id') == $k->id ? 'selected' : '' }}>
+                            {{ $k->tingkat . ' - ' . $k->nama_kelas }}
+                        </option>
                     @endforeach
                 </select>
                 @error('kelas_id')

@@ -9,11 +9,16 @@ use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\MapelController;
 use App\Http\Controllers\Admin\GuruController;
 use App\Http\Controllers\Admin\SiswaController;
+use App\Http\Controllers\Admin\LaporanAbsensiController;
 use App\Http\Controllers\Guru\AbsensiController as GuruAbsensiController;
 use App\Http\Controllers\Siswa\AbsensiController as SiswaAbsensiController;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\Auth\GuruLoginController;
 use App\Http\Controllers\Auth\SiswaLoginController;
+use App\Http\Controllers\Admin\RoleAssignmentController;
+use App\Http\Controllers\Guru\RekapController as GuruRekapController;
+use App\Http\Controllers\WaliKelas\RekapController as WaliKelasRekapController;
+use App\Http\Controllers\WaliKelas\AbsensiController;
 
 
 // Route untuk halaman awal
@@ -77,6 +82,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('mapel', MapelController::class);
         Route::resource('guru', GuruController::class);
         Route::resource('siswa', SiswaController::class);
+
+        Route::get('laporan-absensi', [LaporanAbsensiController::class, 'index'])->name('laporan.absensi.index');
+        Route::get('laporan-absensi/export', [LaporanAbsensiController::class, 'export'])->name('laporan.absensi.export');
+
+        Route::get('/roles/assign', [RoleAssignmentController::class, 'index'])->name('roles.assign');
+        Route::post('/roles/assign-wali-kelas', [RoleAssignmentController::class, 'assignWaliKelas'])->name('roles.assignWaliKelas');
+        Route::delete('/roles/remove-wali-kelas', [RoleAssignmentController::class, 'removeWaliKelas'])->name('roles.removeWaliKelas');
     });
 
     // GRUP ROUTE GURU
@@ -86,12 +98,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/absensi/{jadwal}', [GuruAbsensiController::class, 'show'])->name('absensi.show');
         Route::post('/absensi/{sesiAbsen}/kode', [GuruAbsensiController::class, 'createCode'])->name('absensi.createCode');
         Route::post('/absensi/{sesiAbsen}/manual', [GuruAbsensiController::class, 'storeManual'])->name('absensi.storeManual');
+        Route::get('/absensi/{sesiAbsen}/export', [GuruAbsensiController::class, 'export'])->name('absensi.export');
+        Route::post('/absensi/update-status', [GuruAbsensiController::class, 'updateStatus'])->name('absensi.updateStatus');
+
+        Route::get('/guru/riwayat/{id}', [GuruAbsensiController::class, 'detail'])->name('guru.riwayat.detail');
+        Route::get('/riwayat-absensi', [GuruAbsensiController::class, 'riwayat'])->name('riwayat.riwayat');
+        Route::get('/riwayat-absensi/{id}', [GuruAbsensiController::class, 'detail'])->name('riwayat.detail');
+
+        Route::get('/rekap', [GuruRekapController::class, 'index'])->name('rekap.index');
+        Route::get('/rekap/export', [GuruRekapController::class, 'export'])->name('rekap.export');
+    });
+
+    Route::middleware(['auth', 'verified', 'isWaliKelas'])->prefix('walikelas')->name('walikelas.')->group(function () {
+        Route::get('/cek-kelas', [AbsensiController::class, 'cekKelas'])->name('cek_kelas');
+        Route::get('/laporan/absensi/export', [AbsensiController::class, 'export'])->name('laporan.absensi.export.walikelas');
+        Route::get('/rekap', [WaliKelasRekapController::class, 'index'])->name('rekap.index');
+        Route::get('/rekap/export', [WaliKelasRekapController::class, 'export'])->name('rekap.export');
     });
 
     // GRUP ROUTE SISWA
     Route::middleware(['isSiswa'])->prefix('siswa')->name('siswa.')->group(function () {
         Route::get('/dashboard', [SiswaAbsensiController::class, 'dashboard'])->name('dashboard');
         Route::post('/absensi', [SiswaAbsensiController::class, 'store'])->name('absensi.store');
+        Route::get('/jadwal', [SiswaAbsensiController::class, 'jadwal'])->name('jadwal.index');
     });
 });
 

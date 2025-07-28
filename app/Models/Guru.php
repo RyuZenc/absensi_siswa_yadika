@@ -10,7 +10,7 @@ class Guru extends Model
     use HasFactory;
 
     protected $table = 'gurus';
-    protected $fillable = ['user_id', 'nip', 'nama_lengkap', 'alamat', 'no_telp'];
+    protected $fillable = ['user_id', 'nip', 'nama_lengkap', 'alamat', 'no_telp', 'role'];
 
     /**
      * Relasi one-to-one (inverse) ke model User.
@@ -28,5 +28,10 @@ class Guru extends Model
     public function jadwals()
     {
         return $this->hasMany(Jadwal::class);
+    }
+
+    public function kelasYangDiampu()
+    {
+        return $this->hasOne(Kelas::class, 'guru_id');
     }
 }

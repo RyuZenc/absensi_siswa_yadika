@@ -44,11 +44,13 @@ class AbsensiController extends Controller
             return back()->with('error', 'Kode absensi tidak ditemukan.');
         }
 
+        /*
         $waktuMulai = Carbon::parse($sesiAbsen->tanggal . ' ' . $sesiAbsen->jadwal->jam_mulai);
 
         if (Carbon::now()->isBefore($waktuMulai)) {
             return back()->with('error', 'Sesi absensi untuk kelas ini belum dimulai.');
         }
+        */
 
         if (Carbon::now()->gt($sesiAbsen->berlaku_hingga)) {
             return back()->with('error', 'Kode absensi sudah kedaluwarsa.');
@@ -58,17 +60,36 @@ class AbsensiController extends Controller
             return back()->with('error', 'Anda tidak terdaftar di kelas ini.');
         }
 
-        Absensi::updateOrCreate(
-            [
-                'sesi_absen_id' => $sesiAbsen->id,
-                'siswa_id' => $siswa->id,
-                'tanggal' => $sesiAbsen->tanggal,
-            ],
-            [
-                'status' => 'hadir',
-            ]
-        );
+        $sudahAbsen = Absensi::where('sesi_absen_id', $sesiAbsen->id)
+            ->where('siswa_id', $siswa->id)
+            ->where('tanggal', $sesiAbsen->tanggal)
+            ->exists();
+
+        if ($sudahAbsen) {
+            return back()->with('info', 'Anda sudah melakukan absensi.');
+        }
+
+        Absensi::create([
+            'sesi_absen_id' => $sesiAbsen->id,
+            'siswa_id' => $siswa->id,
+            'tanggal' => $sesiAbsen->tanggal,
+            'status' => 'hadir',
+        ]);
 
         return back()->with('success', 'Anda berhasil melakukan absensi!');
+    }
+
+    public function jadwal()
+    {
+        $siswa = Auth::user()->siswa;
+
+        $jadwals = \App\Models\Jadwal::with(['mapel', 'guru'])
+            ->where('kelas_id', $siswa->kelas_id)
+            ->orderByRaw("FIELD(hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu')")
+            ->orderBy('jam_mulai')
+            ->get()
+            ->groupBy('hari');
+
+        return view('siswa.jadwal.index', compact('jadwals'));
     }
 }

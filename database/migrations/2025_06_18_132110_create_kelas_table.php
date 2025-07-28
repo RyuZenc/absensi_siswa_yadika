@@ -12,13 +12,11 @@ return new class extends Migration
             $table->id();
             $table->string('nama_kelas');
             $table->string('tingkat');
+            $table->foreignId('guru_id')->nullable()->constrained('gurus')->onDelete('set null')->after('tingkat');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('kelas');

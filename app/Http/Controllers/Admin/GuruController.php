@@ -14,9 +14,13 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class GuruController extends Controller
 {
+    /* The `index` method in the `GuruController` is responsible for displaying a list of gurus with
+    search functionality. */
     public function index(Request $request)
     {
         $search = $request->input('search');
+        $query = Guru::with('user');
+
         $query = Guru::with('user');
 
         if ($search) {
@@ -24,12 +28,13 @@ class GuruController extends Controller
                 $q->where('nama_lengkap', 'like', "%{$search}%")
                     ->orWhere('nip', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($userQuery) use ($search) {
-                        $userQuery->where('email', 'like', "%{$search}%")->orWhere('username', 'like', "%{$search}%");
+                        $userQuery->where('email', 'like', "%{$search}%")
+                            ->orWhere('username', 'like', "%{$search}%");
                     });
             });
         }
 
-        $gurus = $query->paginate(15);
+        $gurus = $query->orderBy('created_at', 'desc')->paginate(10);
         $gurus->appends(['search' => $search]);
 
         return view('admin.guru.index', compact('gurus', 'search'));
@@ -45,9 +50,9 @@ class GuruController extends Controller
         $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:255'],
             'nip' => ['required', 'string', 'max:255', 'unique:gurus'],
-            'username' => ['required', 'string', 'max:255', 'unique:users', 'alpha_dash'],
+            'username' => ['nullable', 'string', 'max:255', 'unique:users', 'alpha_dash'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'confirmed', Rules\Password::min(6)],
         ]);
 
         DB::transaction(function () use ($request) {
@@ -62,6 +67,7 @@ class GuruController extends Controller
             $user->guru()->create([
                 'nama_lengkap' => $request->nama_lengkap,
                 'nip' => $request->nip,
+                'role' => 'guru',
             ]);
         });
 
@@ -78,9 +84,9 @@ class GuruController extends Controller
         $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:255'],
             'nip' => ['required', 'string', 'max:255', 'unique:gurus,nip,' . $guru->id],
-            'username' => ['required', 'string', 'max:255', 'unique:users,username,' . $guru->user_id, 'alpha_dash'],
+            'username' => ['nullable', 'string', 'max:255', 'unique:users,username,' . $guru->user_id, 'alpha_dash'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $guru->user_id],
-            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+            'password' => ['nullable', 'confirmed', Rules\Password::min(6)],
         ]);
 
         DB::transaction(function () use ($request, $guru) {

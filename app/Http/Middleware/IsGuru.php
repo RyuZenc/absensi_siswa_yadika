@@ -14,6 +14,6 @@ class IsGuru
         if (Auth::check() && Auth::user()->role == 'guru') {
             return $next($request);
         }
-        abort(403, 'Akses Ditolak. Anda Bukan Guru.');
+        return redirect('/')->with('error', 'Akses Ditolak. Anda Bukan Guru.');
     }
 }

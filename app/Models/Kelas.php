@@ -10,7 +10,7 @@ class Kelas extends Model
     use HasFactory;
 
     protected $table = 'kelas';
-    protected $fillable = ['nama_kelas', 'tingkat'];
+    protected $fillable = ['nama_kelas', 'tingkat', 'guru_id'];
 
     /**
      * Relasi one-to-many ke model Siswa.
@@ -28,5 +28,10 @@ class Kelas extends Model
     public function jadwals()
     {
         return $this->hasMany(Jadwal::class);
+    }
+
+    public function waliKelas()
+    {
+        return $this->belongsTo(Guru::class, 'guru_id');
     }
 }

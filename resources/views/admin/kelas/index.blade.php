@@ -18,16 +18,20 @@
                             <button class="sort-btn ml-1" data-column="0">⬍</button>
                         </th>
                         <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
-                            Nama Kelas
+                            Kelas
                             <button class="sort-btn ml-1" data-column="1">⬍</button>
                         </th>
                         <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
-                            Tingkat
+                            Nama Kelas
                             <button class="sort-btn ml-1" data-column="2">⬍</button>
                         </th>
                         <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
-                            Jumlah Siswa
+                            Tingkat
                             <button class="sort-btn ml-1" data-column="3">⬍</button>
+                        </th>
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">
+                            Jumlah Siswa
+                            <button class="sort-btn ml-1" data-column="4">⬍</button>
                         </th>
                         <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Aksi</th>
                     </tr>
@@ -36,6 +40,7 @@
                     @forelse ($kelas as $k)
                         <tr class="border-b">
                             <td class="py-3 px-4">{{ $loop->iteration }}</td>
+                            <td class="py-3 px-4">{{ $k->tingkat . ' - ' . $k->nama_kelas }}</td>
                             <td class="py-3 px-4">{{ $k->nama_kelas }}</td>
                             <td class="py-3 px-4">{{ $k->tingkat }}</td>
                             <td class="py-3 px-4">{{ $k->siswas_count }}</td>

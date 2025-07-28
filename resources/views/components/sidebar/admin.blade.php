@@ -18,3 +18,10 @@
 
 <x-sidebar.link href="{{ route('admin.jadwal.index') }}" icon="bi-calendar-week-fill" title="Manajemen Jadwal"
     :active="request()->routeIs('admin.jadwal.*')" :sidebarOpen="$sidebarOpen" />
+
+<x-sidebar.link href="{{ route('admin.laporan.absensi.index') }}" icon="bi-file-earmark-bar-graph-fill"
+    title="Laporan Absensi" :active="request()->routeIs('admin.laporan.absensi.*')" :sidebarOpen="$sidebarOpen" />
+
+<x-sidebar.link :href="route('admin.roles.assign')" :active="request()->routeIs('admin.roles.assign')" title="Pengaturan Wali Kelas" icon="bi-person-lines-fill">
+    Pengaturan Wali Kelas
+</x-sidebar.link>

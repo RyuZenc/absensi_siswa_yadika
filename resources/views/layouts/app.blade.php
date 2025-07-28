@@ -21,6 +21,7 @@
     <div class="flex h-screen bg-gray-100" x-data="{ isSidebarOpen: JSON.parse(localStorage.getItem('sidebarOpen') || 'true') }" x-init="$watch('isSidebarOpen', value => localStorage.setItem('sidebarOpen', JSON.stringify(value)))">
         <aside
             class="fixed inset-y-0 left-0 z-50 flex flex-col text-white p-4 transition-[width] duration-300 shrink-0 bg-gray-800 md:relative md:flex"
+            x-data
             :class="{
                 'w-64': isSidebarOpen,
                 'w-20': !isSidebarOpen,
@@ -34,7 +35,6 @@
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-3" x-show="isSidebarOpen">
                     <img src="{{ asset('yadika/assets/images/sma-yadika-full.png') }}" alt="Yadika Logo"
                         style="width: 300px; height: auto;">
-
                 </a>
                 <button @click="isSidebarOpen = !isSidebarOpen"
                     class="p-2 rounded-md hover:bg-gray-700 focus:outline-none md:hidden">
@@ -46,14 +46,17 @@
                 </button>
             </div>
 
-            <nav class="mt-10 flex flex-col gap-y-2 overflow-y-auto overflow-x-hidden scrollbar-thin-dark">
-                @includeWhen(Auth::user()->role === 'admin', 'components.sidebar.admin', [
-                    'sidebarOpen' => true,
-                ])
-                @includeWhen(Auth::user()->role === 'guru', 'components.sidebar.guru', ['sidebarOpen' => true])
-                @includeWhen(Auth::user()->role === 'siswa', 'components.sidebar.siswa', [
-                    'sidebarOpen' => true,
-                ])
+            <nav class="mt-10 space-y-2 flex-col gap-y-2 overflow-y-auto overflow-x-hidden scrollbar-thin-dark">
+                @auth
+                    @if (Auth::user()->role === 'admin')
+                        <x-sidebar.admin />
+                    @elseif(Auth::user()->role === 'guru')
+                        <x-sidebar.guru />
+                    @elseif(Auth::user()->role === 'siswa')
+                        <x-sidebar.siswa />
+                    @endif
+                @endauth
+
                 <a href="{{ route('profile.edit') }}" title="Profile"
                     class="flex items-center gap-3 h-12 px-4 rounded transition duration-200 bg-blue-500 hover:bg-blue-700 {{ request()->routeIs('profile.edit') ? 'bg-gray-900' : '' }}"
                     :class="!isSidebarOpen && 'justify-center'">
@@ -71,6 +74,7 @@
                 </form>
             </nav>
         </aside>
+
 
         <div x-show="isSidebarOpen" @click="isSidebarOpen = false"
             class="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden" x-transition.opacity></div>
@@ -104,7 +108,14 @@
                         <div x-show="open" @click.away="open = false" x-transition
                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
                             <div class="px-4 py-2 text-sm text-gray-700 border-b font-semibold">
-                                {{ Auth::user()->name }}
+                                {{ Auth::user()->name }} <br>
+                                @if (Auth::user()->role === 'siswa')
+                                    <span class="text-xs text-gray-500">NIS:
+                                        {{ Auth::user()->siswa->nis ?? '-' }}</span>
+                                @elseif (Auth::user()->role === 'guru')
+                                    <span class="text-xs text-gray-500">NIP:
+                                        {{ Auth::user()->guru->nip ?? '-' }}</span>
+                                @endif
                             </div>
                             <a href="{{ route('profile.edit') }}"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -132,6 +143,10 @@
 
             @if (session('error'))
                 <x-toast type="error" :message="session('error')" />
+            @endif
+
+            @if (session('info'))
+                <x-toast type="info" :message="session('info')" />
             @endif
 
             <footer class="text-center text-gray-500 mt-8 py-4 shrink-0">

@@ -10,7 +10,7 @@ class Mapel extends Model
     use HasFactory;
 
     protected $table = 'mapels';
-    protected $fillable = ['nama_mapel'];
+    protected $fillable = ['nama_mapel', 'guru_id']; // Added guru_id
 
     /**
      * Relasi one-to-many ke model Jadwal.
@@ -19,5 +19,14 @@ class Mapel extends Model
     public function jadwals()
     {
         return $this->hasMany(Jadwal::class);
+    }
+
+    /**
+     * Relasi many-to-one ke model Guru.
+     * Satu mata pelajaran diajar oleh satu guru (jika ada).
+     */
+    public function guru()
+    {
+        return $this->belongsTo(Guru::class);
     }
 }

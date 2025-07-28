@@ -24,8 +24,7 @@
             <div>
                 <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
                 <input type="text" name="username" id="username"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value="{{ old('username') }}"
-                    required>
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value="{{ old('username') }}">
                 @error('username')
                     <span class="text-red-500 text-sm">{{ $message }}</span>
                 @enderror

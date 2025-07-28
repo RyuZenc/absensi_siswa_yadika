@@ -36,52 +36,33 @@ class DatabaseSeeder extends Seeder
 
         // 1. Buat Akun Admin
         User::create([
-            'name' => 'Admin Aplikasi',
+            'name' => 'Admin Yadika',
             'email' => 'admin@gmail.com',
-            'password' => Hash::make('password'), // Ganti 'password' dengan password yang aman
+            'password' => Hash::make('password'),
             'role' => 'admin',
         ]);
 
         // 2. Buat Data Kelas
-        $kelas10 = Kelas::create(['nama_kelas' => 'IPA 1', 'tingkat' => 'X']);
-        $kelas11 = Kelas::create(['nama_kelas' => 'IPS 1', 'tingkat' => 'XI']);
-        $kelas12 = Kelas::create(['nama_kelas' => 'IPS 2', 'tingkat' => 'XII']);
+        Kelas::create(['nama_kelas' => 'E1', 'tingkat' => 'X']);
+        Kelas::create(['nama_kelas' => 'E2', 'tingkat' => 'X']);
+        Kelas::create(['nama_kelas' => 'F1', 'tingkat' => 'XI']);
+        Kelas::create(['nama_kelas' => 'F2', 'tingkat' => 'XI']);
+        Kelas::create(['nama_kelas' => 'F1', 'tingkat' => 'XII']);
+        Kelas::create(['nama_kelas' => 'F2', 'tingkat' => 'XII']);
 
         // 3. Buat Data Mata Pelajaran
-        $mapelMTK = Mapel::create(['nama_mapel' => 'Matematika Wajib']);
-        $mapelBIN = Mapel::create(['nama_mapel' => 'Bahasa Indonesia']);
-        $mapelBIG = Mapel::create(['nama_mapel' => 'Bahasa Inggris']);
-        $mapelPROG = Mapel::create(['nama_mapel' => 'Dasar Pemrograman']);
+        Mapel::create(['nama_mapel' => 'Matematika']);
+        Mapel::create(['nama_mapel' => 'Bahasa Indonesia']);
+        Mapel::create(['nama_mapel' => 'Bahasa Inggris']);
+        Mapel::create(['nama_mapel' => 'Fisika']);
 
         // 4. Buat Akun Guru (lengkap dengan User)
         // Guru 1
-        $userGuru1 = User::create([
+        User::create([
             'name' => 'Budi Santoso, S.Pd.',
             'email' => 'budi.guru@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'guru',
-        ]);
-        $guru1 = $userGuru1->guru()->create([
-            'nip' => '198001012010011001',
-            'nama_lengkap' => 'Budi Santoso, S.Pd.',
-        ]);
-
-        // 6. Contoh Jadwal
-        Jadwal::create([
-            'guru_id' => $guru1->id,
-            'mapel_id' => $mapelMTK->id,
-            'kelas_id' => $kelas10->id,
-            'hari' => 'Senin',
-            'jam_mulai' => '07:30:00',
-            'jam_selesai' => '09:00:00',
-        ]);
-        Jadwal::create([
-            'guru_id' => $guru1->id,
-            'mapel_id' => $mapelBIN->id,
-            'kelas_id' => $kelas11->id,
-            'hari' => 'Selasa',
-            'jam_mulai' => '08:00:00',
-            'jam_selesai' => '09:30:00',
         ]);
     }
 }

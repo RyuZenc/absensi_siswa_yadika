@@ -15,7 +15,7 @@
         </tr>
         <tr>
             <th style="font-weight: bold;">Wali Kelas</th>
-            <th colspan="2">: {{ $kelas->guru->nama_lengkap ?? 'N/A' }}</th>
+            <th colspan="2">: {{ $kelas->waliKelas->nama_lengkap ?? 'N/A' }}</th>
         </tr>
         <tr></tr>
         <tr>

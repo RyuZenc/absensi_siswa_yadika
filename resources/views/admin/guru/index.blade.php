@@ -5,7 +5,7 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
             <div class="w-full md:flex-1">
                 <form action="{{ route('admin.guru.index') }}" method="GET" class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" name="search" placeholder="Cari nama, NIP, atau email..."
+                    <input type="text" name="search" placeholder="Cari nama, Kode Guru, atau email..."
                         class="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                         value="{{ $search ?? '' }}">
                     <button type="submit"
@@ -49,7 +49,7 @@
                                 data-column="0">⬍</button></th>
                         <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Nama Lengkap <button
                                 class="sort-btn ml-1" data-column="1">⬍</button></th>
-                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">NIP <button
+                        <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Kode Guru <button
                                 class="sort-btn ml-1" data-column="2">⬍</button></th>
                         <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Username <button
                                 class="sort-btn ml-1" data-column="3">⬍</button></th>
@@ -63,7 +63,7 @@
                         <tr class="border-b">
                             <td class="py-3 px-4">{{ $loop->iteration }}</td>
                             <td class="py-3 px-4 whitespace-nowrap">{{ $guru->nama_lengkap }}</td>
-                            <td class="py-3 px-4">{{ $guru->nip }}</td>
+                            <td class="py-3 px-4">{{ $guru->kode_guru }}</td>
                             <td class="py-3 px-4">{{ $guru->user->username ?? '-' }}</td>
                             <td class="py-3 px-4">{{ $guru->user->email }}</td>
                             <td class="py-3 px-4">

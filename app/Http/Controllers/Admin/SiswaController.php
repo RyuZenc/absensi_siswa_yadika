@@ -35,7 +35,7 @@ class SiswaController extends Controller
             });
         }
 
-        $siswas = $query->orderBy('created_at', 'desc')->paginate(10);
+        $siswas = $query->orderBy('created_at', 'desc')->paginate(20);
         $siswas->appends(['search' => $search]);
 
         return view('admin.siswa.index', compact('siswas', 'search'));

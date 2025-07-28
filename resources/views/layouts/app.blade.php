@@ -113,8 +113,8 @@
                                     <span class="text-xs text-gray-500">NIS:
                                         {{ Auth::user()->siswa->nis ?? '-' }}</span>
                                 @elseif (Auth::user()->role === 'guru')
-                                    <span class="text-xs text-gray-500">NIP:
-                                        {{ Auth::user()->guru->nip ?? '-' }}</span>
+                                    <span class="text-xs text-gray-500">KODE GURU:
+                                        {{ Auth::user()->guru->kode_guru ?? '-' }}</span>
                                 @endif
                             </div>
                             <a href="{{ route('profile.edit') }}"

@@ -10,7 +10,7 @@ class Guru extends Model
     use HasFactory;
 
     protected $table = 'gurus';
-    protected $fillable = ['user_id', 'nip', 'nama_lengkap', 'alamat', 'no_telp', 'role'];
+    protected $fillable = ['user_id', 'kode_guru', 'nama_lengkap', 'alamat', 'no_telp', 'role'];
 
     /**
      * Relasi one-to-one (inverse) ke model User.

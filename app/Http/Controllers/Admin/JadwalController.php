@@ -45,20 +45,16 @@ class JadwalController extends Controller
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
         ]);
 
-        // Cek tumpang tindih jadwal untuk kelas dan hari yang sama
-        $existingOverlap = Jadwal::where('kelas_id', $request->kelas_id)
+        $guruBentrok = Jadwal::where('guru_id', $request->guru_id)
             ->where('hari', $request->hari)
             ->where(function ($query) use ($request) {
-                // Cek apakah ada jadwal lain yang tumpang tindih dengan jam yang baru
-                $query->where(function ($q) use ($request) {
-                    $q->where('jam_mulai', '<', $request->jam_selesai)
-                        ->where('jam_selesai', '>', $request->jam_mulai);
-                });
+                $query->where('jam_mulai', '<', $request->jam_selesai)
+                    ->where('jam_selesai', '>', $request->jam_mulai);
             })
             ->exists();
 
-        if ($existingOverlap) {
-            return redirect()->back()->withInput()->withErrors(['jam_mulai' => 'Jadwal tumpang tindih dengan jadwal lain untuk kelas ini pada hari dan waktu yang sama.']);
+        if ($guruBentrok) {
+            return back()->withInput()->withErrors(['guru_id' => 'Guru sudah memiliki jadwal pada waktu tersebut.']);
         }
 
         Jadwal::create($request->all());
@@ -90,21 +86,17 @@ class JadwalController extends Controller
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
         ]);
 
-        // Cek tumpang tindih jadwal untuk kelas dan hari yang sama, kecuali jadwal yang sedang diedit
-        $existingOverlap = Jadwal::where('kelas_id', $request->kelas_id)
+        $guruBentrok = Jadwal::where('guru_id', $request->guru_id)
             ->where('hari', $request->hari)
-            ->where('id', '!=', $jadwal->id) // Abaikan jadwal yang sedang diedit
+            ->where('id', '!=', $jadwal->id)
             ->where(function ($query) use ($request) {
-                // Cek jika jadwal baru tumpang tindih dengan jadwal yang sudah ada
-                $query->where(function ($q) use ($request) {
-                    $q->where('jam_mulai', '<', $request->jam_selesai)
-                        ->where('jam_selesai', '>', $request->jam_mulai);
-                });
+                $query->where('jam_mulai', '<', $request->jam_selesai)
+                    ->where('jam_selesai', '>', $request->jam_mulai);
             })
             ->exists();
 
-        if ($existingOverlap) {
-            return redirect()->back()->withInput()->withErrors(['jam_mulai' => 'Jadwal tumpang tindih dengan jadwal lain untuk kelas ini pada hari dan waktu yang sama.']);
+        if ($guruBentrok) {
+            return back()->withInput()->withErrors(['guru_id' => 'Guru sudah memiliki jadwal pada waktu tersebut.']);
         }
 
         $jadwal->update($request->all());

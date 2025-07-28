@@ -14,8 +14,6 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class GuruController extends Controller
 {
-    /* The `index` method in the `GuruController` is responsible for displaying a list of gurus with
-    search functionality. */
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -26,7 +24,7 @@ class GuruController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama_lengkap', 'like', "%{$search}%")
-                    ->orWhere('nip', 'like', "%{$search}%")
+                    ->orWhere('kode_guru', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($userQuery) use ($search) {
                         $userQuery->where('email', 'like', "%{$search}%")
                             ->orWhere('username', 'like', "%{$search}%");
@@ -34,7 +32,7 @@ class GuruController extends Controller
             });
         }
 
-        $gurus = $query->orderBy('created_at', 'desc')->paginate(10);
+        $gurus = $query->orderBy('created_at', 'desc')->paginate(100);
         $gurus->appends(['search' => $search]);
 
         return view('admin.guru.index', compact('gurus', 'search'));
@@ -49,7 +47,7 @@ class GuruController extends Controller
     {
         $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:255'],
-            'nip' => ['required', 'string', 'max:255', 'unique:gurus'],
+            'kode_guru' => ['required', 'string', 'max:255', 'unique:gurus'],
             'username' => ['nullable', 'string', 'max:255', 'unique:users', 'alpha_dash'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::min(6)],
@@ -66,7 +64,7 @@ class GuruController extends Controller
 
             $user->guru()->create([
                 'nama_lengkap' => $request->nama_lengkap,
-                'nip' => $request->nip,
+                'kode_guru' => $request->kode_guru,
                 'role' => 'guru',
             ]);
         });
@@ -83,7 +81,7 @@ class GuruController extends Controller
     {
         $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:255'],
-            'nip' => ['required', 'string', 'max:255', 'unique:gurus,nip,' . $guru->id],
+            'kode_guru' => ['required', 'string', 'max:255', 'unique:gurus,kode_guru,' . $guru->id],
             'username' => ['nullable', 'string', 'max:255', 'unique:users,username,' . $guru->user_id, 'alpha_dash'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $guru->user_id],
             'password' => ['nullable', 'confirmed', Rules\Password::min(6)],
@@ -104,7 +102,7 @@ class GuruController extends Controller
 
             $guru->update([
                 'nama_lengkap' => $request->nama_lengkap,
-                'nip' => $request->nip,
+                'kode_guru' => $request->kode_guru,
             ]);
         });
 

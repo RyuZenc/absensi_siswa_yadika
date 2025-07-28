@@ -6,23 +6,12 @@
         </h2>
     </x-slot>
     <form method="GET" class="mb-6 flex flex-col md:flex-row gap-4 items-stretch md:items-end">
-        <div class="w-full md:w-auto">
-            <label for="kelas_id" class="block text-sm font-medium">Wali Kelas</label>
-            <select name="kelas_id" id="kelas_id" class="rounded w-full md:w-48 border-gray-300"
-                {{ $kelasList->count() <= 1 ? 'disabled' : '' }}>
-                @if ($kelasList->count() > 1)
-                    <option value="">-- Pilih Kelas --</option>
-                @endif
-                @foreach ($kelasList as $k)
-                    <option value="{{ $k->id }}"
-                        {{ $kelasList->count() == 1 || request('kelas_id') == $k->id ? 'selected' : '' }}>
-                        {{ $k->tingkat . ' - ' . $k->nama_kelas }}
-                    </option>
-                @endforeach
-            </select>
-            @if ($kelasList->count() == 1)
-                <input type="hidden" name="kelas_id" value="{{ $kelasList->first()->id }}">
-            @endif
+        <div>
+            <label class="block font-medium text-sm text-gray-700">Wali Kelas</label>
+            <div class="mt-1 block w-full rounded-md bg-gray-100 border border-gray-300 px-3 py-2">
+                {{ $kelasList->first()->tingkat . ' - ' . $kelasList->first()->nama_kelas }}
+            </div>
+            <input type="hidden" name="kelas_id" value="{{ $kelasList->first()->id }}">
         </div>
 
         <div class="w-full md:w-auto">

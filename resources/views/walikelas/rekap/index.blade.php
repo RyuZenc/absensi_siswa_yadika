@@ -9,27 +9,16 @@
                 <div class="p-6 text-gray-900" x-data="{ range: '{{ old('range', $inputs['range'] ?? 'this_week') }}' }">
 
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Filter Rekapitulasi</h3>
-
-                    {{-- Form Filter --}}
                     <form action="{{ route('walikelas.rekap.index') }}" method="GET" class="pb-4 mb-6 border-b">
                         <input type="hidden" name="filter" value="true">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {{-- Pilih Kelas --}}
                             <div>
-                                <label for="kelas_id" class="block font-medium text-sm text-gray-700">Kelas</label>
-                                <select name="kelas_id" id="kelas_id" required
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                    <option value="">Pilih Kelas</option>
-                                    @foreach ($kelasList as $kelas)
-                                        <option value="{{ $kelas->id }}"
-                                            {{ old('kelas_id', $inputs['kelas_id'] ?? '') == $kelas->id ? 'selected' : '' }}>
-                                            {{ $kelas->tingkat . ' - ' . $kelas->nama_kelas }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <label class="block font-medium text-sm text-gray-700">Wali Kelas</label>
+                                <div class="mt-1 block w-full rounded-md bg-gray-100 border border-gray-300 px-3 py-2">
+                                    {{ $kelasList->first()->tingkat . ' - ' . $kelasList->first()->nama_kelas }}
+                                </div>
+                                <input type="hidden" name="kelas_id" value="{{ $kelasList->first()->id }}">
                             </div>
-
-                            {{-- Pilih Mata Pelajaran --}}
                             <div>
                                 <label for="mapel_id" class="block font-medium text-sm text-gray-700">Mata
                                     Pelajaran</label>
@@ -44,8 +33,6 @@
                                     @endforeach
                                 </select>
                             </div>
-
-                            {{-- Pilih Rentang Waktu --}}
                             <div>
                                 <label for="range" class="block font-medium text-sm text-gray-700">Rentang
                                     Waktu</label>
@@ -57,8 +44,6 @@
                                 </select>
                             </div>
                         </div>
-
-                        {{-- Input Tanggal Custom --}}
                         <div x-show="range === 'custom'" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                             <div>
                                 <label for="start_date" class="block font-medium text-sm text-gray-700">Tanggal
@@ -75,8 +60,6 @@
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                             </div>
                         </div>
-
-                        {{-- Tombol Aksi --}}
                         <div class="flex items-center space-x-4 mt-6">
                             <button type="submit"
                                 class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
@@ -90,8 +73,6 @@
                             @endif
                         </div>
                     </form>
-
-                    {{-- Hasil Rekapitulasi --}}
                     @if (request()->has('filter'))
                         @if (!empty($rekapData))
                             <div class="mt-6">

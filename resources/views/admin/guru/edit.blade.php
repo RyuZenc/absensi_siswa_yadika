@@ -15,11 +15,11 @@
                 @enderror
             </div>
             <div>
-                <label for="nip" class="block text-sm font-medium text-gray-700">NIP</label>
-                <input type="text" name="nip" id="nip"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" value="{{ old('nip', $guru->nip) }}"
-                    required>
-                @error('nip')
+                <label for="kode_guru" class="block text-sm font-medium text-gray-700">Kode Guru</label>
+                <input type="text" name="kode_guru" id="kode_guru"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                    value="{{ old('kode_guru', $guru->kode_guru) }}" required>
+                @error('kode_guru')
                     <span class="text-red-500 text-sm">{{ $message }}</span>
                 @enderror
             </div>

@@ -27,7 +27,7 @@
                             <option value="">-- Pilih Guru --</option>
                             @foreach ($availableWaliKelas as $guru)
                                 <option value="{{ $guru->id }}" {{ old('guru_id') == $guru->id ? 'selected' : '' }}>
-                                    {{ $guru->nama_lengkap }} (NIP: {{ $guru->nip }})
+                                    {{ $guru->nama_lengkap }} (KODE GURU: {{ $guru->kode_guru }})
                                     @if ($guru->role === 'wali_kelas')
                                         (Saat ini Wali Kelas)
                                     @endif

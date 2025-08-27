@@ -1,5 +1,5 @@
 @php($sidebarOpen = $sidebarOpen ?? true)
-<h3 class="font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-4 text-sm">Menu Guru</h3>
+<h3 class="font-semibold text-gray-400 uppercase tracking-wider mb-2 mt-2 text-sm">Menu Guru</h3>
 
 <x-sidebar.link href="{{ route('guru.dashboard') }}" icon="bi-grid-1x2-fill" title="Dashboard" :active="request()->routeIs('guru.dashboard')"
     :sidebarOpen="$sidebarOpen" />
@@ -15,7 +15,7 @@
 
 @if (Auth::user()->guru && Auth::user()->guru->role === 'wali_kelas')
     <div class="space-y-2 flex-col space-y-2 flex-col gap-y-2mt-6 pt-4 border-t border-gray-200">
-        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Menu Wali Kelas</h3>
+        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 mt-2">Menu Wali Kelas</h3>
         <x-sidebar.walikelas />
     </div>
 @endif

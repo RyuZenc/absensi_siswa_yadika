@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",function(){const e=document.getElementById("mapel_id"),t=document.getElementById("guru_id");e&&t&&(e.addEventListener("change",function(){const n=e.options[e.selectedIndex].dataset.guruId;n?t.value=n:t.value=""}),e.value&&e.dispatchEvent(new Event("change")))});

@@ -1,8 +1,9 @@
+@import "./sorter.css";
+@import "./components.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import "./sorter.css";
 
 @layer utilities {
     .scrollbar-thin-dark {

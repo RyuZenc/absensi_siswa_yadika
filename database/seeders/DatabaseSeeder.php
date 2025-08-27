@@ -22,15 +22,6 @@ class DatabaseSeeder extends Seeder
         // Nonaktifkan pengecekan foreign key untuk sementara
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // Kosongkan tabel sebelum seeding untuk menghindari duplikat
-        User::truncate();
-        Kelas::truncate();
-        Mapel::truncate();
-        Guru::truncate();
-        Siswa::truncate();
-        Jadwal::truncate();
-        // Tambahkan tabel lain jika perlu dikosongkan
-
         // Aktifkan kembali pengecekan foreign key
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 

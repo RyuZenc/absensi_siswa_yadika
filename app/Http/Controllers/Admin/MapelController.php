@@ -27,8 +27,13 @@ class MapelController extends Controller
             'nama_mapel' => 'required|string|max:255|unique:mapels,nama_mapel',
             'guru_id' => 'nullable|exists:gurus,id',
         ]);
-        Mapel::create($request->all());
-        return redirect()->route('admin.mapel.index')->with('success', 'Mata pelajaran baru berhasil ditambahkan.');
+
+        try {
+            Mapel::create($request->all());
+            return redirect()->route('admin.mapel.index')->with('success', 'Mata pelajaran baru berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.mapel.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     public function edit(Mapel $mapel)
@@ -43,8 +48,13 @@ class MapelController extends Controller
             'nama_mapel' => 'required|string|max:255|unique:mapels,nama_mapel,' . $mapel->id,
             'guru_id' => 'nullable|exists:gurus,id',
         ]);
-        $mapel->update($request->all());
-        return redirect()->route('admin.mapel.index')->with('success', 'Data mata pelajaran berhasil diperbarui.');
+
+        try {
+            $mapel->update($request->all());
+            return redirect()->route('admin.mapel.index')->with('success', 'Data mata pelajaran berhasil diperbarui.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.mapel.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     public function destroy(Mapel $mapel)

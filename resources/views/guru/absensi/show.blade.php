@@ -1,6 +1,5 @@
 <x-app-layout>
     @section('header', 'Lakukan Absensi')
-
     <div class="mb-6 p-4 border rounded-lg">
         <h2 class="text-xl font-bold">
             {{ $jadwal->mapel->nama_mapel }} - {{ $jadwal->kelas->tingkat }} {{ $jadwal->kelas->nama_kelas }}
@@ -8,14 +7,10 @@
         <p class="text-gray-600">{{ $jadwal->hari }}, {{ date('H:i', strtotime($jadwal->jam_mulai)) }} -
             {{ date('H:i', strtotime($jadwal->jam_selesai)) }}</p>
     </div>
-
-
     <div class="mb-8 p-4 bg-blue-50 rounded-lg">
         <h3 class="font-semibold text-lg mb-2">Absensi dengan Kode</h3>
-
         <div id="kode-aktif-container" @if (!$sesiAbsen->kode_absen || \Carbon\Carbon::now()->isAfter($sesiAbsen->berlaku_hingga)) style="display: none;" @endif
             data-waktu-berlaku="{{ $sesiAbsen->berlaku_hingga->toIso8601String() }}">
-
             <p class="text-gray-700">Kode yang sedang aktif:</p>
             <p class="text-4xl font-mono font-bold text-center my-4 p-4 bg-white rounded tracking-widest">
                 {{ $sesiAbsen->kode_absen }}
@@ -23,9 +18,7 @@
             <p id="countdown-timer" class="text-base text-center text-gray-700 font-semibold">
             </p>
         </div>
-
         <div id="form-buat-kode-container" @if ($sesiAbsen->kode_absen && \Carbon\Carbon::now()->isBefore($sesiAbsen->berlaku_hingga)) style="display: none;" @endif>
-
             <p class="text-gray-700 mb-2">Buat kode unik agar siswa dapat melakukan absensi mandiri.</p>
             <form action="{{ route('guru.absensi.createCode', $sesiAbsen->id) }}" method="POST"
                 class="flex items-end space-x-4">
@@ -44,7 +37,6 @@
             </form>
         </div>
     </div>
-
     <div class="mb-4 flex justify-end">
         <a href="{{ route('guru.absensi.export', $sesiAbsen->id) }}"
             class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded inline-block">
@@ -101,126 +93,159 @@
                     </tbody>
                 </table>
             </div>
-            <!--
-            <div class="mt-6 flex justify-end">
-                <button type="submit"
-                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Simpan Absensi
-                    Manual</button>
-            </div>
-            -->
         </form>
     </div>
-
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const kodeContainer = document.getElementById('kode-aktif-container');
-                const formContainer = document.getElementById('form-buat-kode-container');
-                const countdownElement = document.getElementById('countdown-timer');
+                try {
+                    // Countdown Timer
+                    const kodeContainer = document.getElementById('kode-aktif-container');
+                    const formContainer = document.getElementById('form-buat-kode-container');
+                    const countdownElement = document.getElementById('countdown-timer');
 
-                if (kodeContainer && countdownElement && kodeContainer.style.display !== 'none') {
-                    const waktuBerlaku = new Date(kodeContainer.dataset.waktuBerlaku).getTime();
+                    if (kodeContainer && countdownElement && kodeContainer.style.display !== 'none') {
+                        const waktuBerlaku = new Date(kodeContainer.dataset.waktuBerlaku).getTime();
 
-                    const countdownInterval = setInterval(function() {
-                        const sekarang = new Date().getTime();
-                        const sisaWaktu = waktuBerlaku - sekarang;
+                        const countdownInterval = setInterval(function() {
+                            try {
+                                const sekarang = new Date().getTime();
+                                const sisaWaktu = waktuBerlaku - sekarang;
 
-                        if (sisaWaktu > 0) {
-                            const menit = Math.floor((sisaWaktu % (1000 * 60 * 60)) / (1000 * 60));
-                            const detik = Math.floor((sisaWaktu % (1000 * 60)) / 1000);
-                            countdownElement.textContent =
-                                `Sisa Waktu: ${String(menit).padStart(2, '0')}:${String(detik).padStart(2, '0')}`;
-                        } else {
-                            clearInterval(countdownInterval);
-                            countdownElement.textContent = 'Waktu habis!';
-
-                            kodeContainer.style.display = 'none';
-                            formContainer.style.display = 'block';
-                        }
-                    }, 1000);
+                                if (sisaWaktu > 0) {
+                                    const menit = Math.floor((sisaWaktu % (1000 * 60 * 60)) / (1000 * 60));
+                                    const detik = Math.floor((sisaWaktu % (1000 * 60)) / 1000);
+                                    countdownElement.textContent =
+                                        `Sisa Waktu: ${String(menit).padStart(2, '0')}:${String(detik).padStart(2, '0')}`;
+                                } else {
+                                    clearInterval(countdownInterval);
+                                    countdownElement.textContent = 'Waktu habis!';
+                                    if (kodeContainer) kodeContainer.style.display = 'none';
+                                    if (formContainer) formContainer.style.display = 'block';
+                                }
+                            } catch (error) {
+                                console.error('Error in countdown:', error);
+                                clearInterval(countdownInterval);
+                            }
+                        }, 1000);
+                    }
+                } catch (error) {
+                    console.error('Error initializing countdown:', error);
                 }
-            });
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const radios = document.querySelectorAll('.absensi-radio');
+                // Auto-save absensi
+                try {
+                    const radios = document.querySelectorAll('.absensi-radio');
+                    radios.forEach(function(radio) {
+                        radio.addEventListener('change', function() {
+                            try {
+                                const siswaId = this.dataset.siswaId;
+                                const status = this.dataset.status;
 
-                radios.forEach(function(radio) {
-                    radio.addEventListener('change', function() {
-                        const siswaId = this.dataset.siswaId;
-                        const status = this.dataset.status;
+                                if (!siswaId || !status) {
+                                    console.error('Missing siswa ID or status');
+                                    return;
+                                }
 
-                        fetch("{{ route('guru.absensi.updateStatus') }}", {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                },
-                                body: JSON.stringify({
-                                    siswa_id: siswaId,
-                                    status: status,
-                                    sesi_absen_id: {{ $sesiAbsen->id }}
-                                }),
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                console.log('Sukses update absensi:', data);
-                            })
-                            .catch(error => {
-                                console.error('Gagal update absensi:', error);
-                            });
-                    });
-                });
-            });
-
-            // Hadirkan semua siswa dengan konfirmasi
-            document.getElementById('hadirkan-semua-btn').addEventListener('click', () => {
-                window.dispatchEvent(new CustomEvent('open-modal', {
-                    detail: 'hadirkan-semua'
-                }));
-            });
-
-            window.addEventListener('confirmed', (e) => {
-                if (e.detail.modal === 'hadirkan-semua') {
-                    const semuaRadioHadir = document.querySelectorAll('input[type="radio"][value="hadir"]');
-                    const fetchPromises = []; // Definisikan array untuk menyimpan promise
-
-                    semuaRadioHadir.forEach(radio => {
-                        if (!radio.checked) {
-                            radio.checked = true;
-
-                            // Ambil info siswa
-                            const siswaId = radio.dataset.siswaId;
-                            const status = radio.value;
-
-                            // Kirim request dan simpan promise-nya
-                            const promise = fetch("{{ route('guru.absensi.updateStatus') }}", {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                },
-                                body: JSON.stringify({
-                                    siswa_id: siswaId,
-                                    status: status,
-                                    sesi_absen_id: {{ $sesiAbsen->id }}
-                                }),
-                            });
-
-                            fetchPromises.push(promise);
-                        }
-                    });
-
-                    // Tunggu semua promise selesai, lalu reload halaman
-                    Promise.all(fetchPromises)
-                        .then(() => {
-                            console.log('Semua absensi berhasil diperbarui');
-                            location.reload();
-                        })
-                        .catch(error => {
-                            console.error('Gagal memperbarui absensi:', error);
-                            // Opsi: Tampilkan pesan error kepada pengguna
+                                fetch("{{ route('guru.absensi.updateStatus') }}", {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                        },
+                                        body: JSON.stringify({
+                                            siswa_id: siswaId,
+                                            status: status,
+                                            sesi_absen_id: {{ $sesiAbsen->id }}
+                                        }),
+                                    })
+                                    .then(response => {
+                                        if (!response.ok) {
+                                            throw new Error(
+                                                `HTTP error! status: ${response.status}`);
+                                        }
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        console.log('Sukses update absensi:', data);
+                                    })
+                                    .catch(error => {
+                                        console.error('Gagal update absensi:', error);
+                                        // Revert radio button if error
+                                        this.checked = false;
+                                    });
+                            } catch (error) {
+                                console.error('Error in radio change handler:', error);
+                            }
                         });
+                    });
+                } catch (error) {
+                    console.error('Error setting up radio handlers:', error);
                 }
+
+                // Hadirkan semua button
+                try {
+                    const hadirkanSemuaBtn = document.getElementById('hadirkan-semua-btn');
+                    if (hadirkanSemuaBtn) {
+                        hadirkanSemuaBtn.addEventListener('click', () => {
+                            window.dispatchEvent(new CustomEvent('open-modal', {
+                                detail: 'hadirkan-semua'
+                            }));
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error setting up hadirkan semua button:', error);
+                }
+
+                // Modal confirmed handler
+                window.addEventListener('confirmed', (e) => {
+                    try {
+                        if (e.detail.modal === 'hadirkan-semua') {
+                            const semuaRadioHadir = document.querySelectorAll(
+                                'input[type="radio"][value="hadir"]');
+                            const fetchPromises = [];
+
+                            semuaRadioHadir.forEach(radio => {
+                                if (!radio.checked) {
+                                    radio.checked = true;
+
+                                    const siswaId = radio.dataset.siswaId;
+                                    const status = radio.value;
+
+                                    if (siswaId && status) {
+                                        const promise = fetch(
+                                            "{{ route('guru.absensi.updateStatus') }}", {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                },
+                                                body: JSON.stringify({
+                                                    siswa_id: siswaId,
+                                                    status: status,
+                                                    sesi_absen_id: {{ $sesiAbsen->id }}
+                                                }),
+                                            });
+
+                                        fetchPromises.push(promise);
+                                    }
+                                }
+                            });
+
+                            Promise.all(fetchPromises)
+                                .then(() => {
+                                    console.log('Semua absensi berhasil diperbarui');
+                                    location.reload();
+                                })
+                                .catch(error => {
+                                    console.error('Gagal memperbarui absensi:', error);
+                                    alert('Terjadi kesalahan saat memperbarui absensi');
+                                });
+                        }
+                    } catch (error) {
+                        console.error('Error in confirmed handler:', error);
+                    }
+                });
             });
         </script>
     @endpush

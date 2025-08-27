@@ -11,9 +11,14 @@ class IsSiswa
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->role == 'siswa') {
+        if (Auth::check() && Auth::user()->role == 'siswa' && Auth::user()->siswa) {
             return $next($request);
         }
+
+        if (Auth::check() && Auth::user()->role == 'siswa' && !Auth::user()->siswa) {
+            return redirect('/')->with('error', 'Data siswa tidak ditemukan. Silakan hubungi administrator.');
+        }
+
         return redirect('/')->with('error', 'Akses Ditolak. Anda Bukan Siswa.');
     }
 }

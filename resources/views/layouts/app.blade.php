@@ -5,16 +5,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <title>{{ config('app.name') }}</title>
-
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-
 </head>
 
 <body class="font-sans antialiased">
@@ -30,7 +26,6 @@
                 'md:flex': true
             }"
             style="background-color:rgb(56, 69, 70)">
-
             <div class="flex items-center shrink-0" :class="isSidebarOpen ? 'justify-between' : 'justify-center'">
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-3" x-show="isSidebarOpen">
                     <img src="{{ asset('yadika/assets/images/sma-yadika-full.png') }}" alt="Yadika Logo"
@@ -45,7 +40,6 @@
                     <i class="bi bi-record-circle text-xl text-indigo-300"></i>
                 </button>
             </div>
-
             <nav class="mt-10 space-y-2 flex-col gap-y-2 overflow-y-auto overflow-x-hidden scrollbar-thin-dark">
                 @auth
                     @if (Auth::user()->role === 'admin')
@@ -56,7 +50,6 @@
                         <x-sidebar.siswa />
                     @endif
                 @endauth
-
                 <a href="{{ route('profile.edit') }}" title="Profile"
                     class="flex items-center gap-3 h-12 px-4 rounded transition duration-200 bg-blue-500 hover:bg-blue-700 {{ request()->routeIs('profile.edit') ? 'bg-gray-900' : '' }}"
                     :class="!isSidebarOpen && 'justify-center'">
@@ -74,11 +67,8 @@
                 </form>
             </nav>
         </aside>
-
-
         <div x-show="isSidebarOpen" @click="isSidebarOpen = false"
             class="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden" x-transition.opacity></div>
-
         <main class="flex-1 p-6 md:p-6 overflow-y-auto">
             <div
                 class="sticky backdrop-blur-md bg-white/90 top-0 z-40 bg-white rounded-lg shadow-md p-4 md:p-6 mb-6 flex items-center justify-between flex-wrap md:flex-nowrap gap-4">
@@ -91,10 +81,8 @@
                         Absensi SMA Yadika
                     </h2>
                 </div>
-
                 <div class="flex items-center gap-6 ml-auto">
                     <div id="realtime-clock" class="text-sm text-gray-600 font-medium"></div>
-
                     <div class="relative" x-data="{ open: false }">
                         <button @click="open = !open" class="flex items-center gap-2 focus:outline-none">
                             <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=random"
@@ -104,17 +92,18 @@
                             </span>
                             <i class="bi bi-chevron-down text-sm text-gray-500"></i>
                         </button>
-
                         <div x-show="open" @click.away="open = false" x-transition
                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
                             <div class="px-4 py-2 text-sm text-gray-700 border-b font-semibold">
                                 {{ Auth::user()->name }} <br>
-                                @if (Auth::user()->role === 'siswa')
+                                @if (Auth::user()->role === 'siswa' && Auth::user()->siswa)
                                     <span class="text-xs text-gray-500">NIS:
-                                        {{ Auth::user()->siswa->nis ?? '-' }}</span>
-                                @elseif (Auth::user()->role === 'guru')
+                                        {{ Auth::user()->siswa->nis }}</span>
+                                @elseif (Auth::user()->role === 'guru' && Auth::user()->guru)
                                     <span class="text-xs text-gray-500">KODE GURU:
-                                        {{ Auth::user()->guru->kode_guru ?? '-' }}</span>
+                                        {{ Auth::user()->guru->kode_guru }}</span>
+                                @else
+                                    <span class="text-xs text-gray-500">{{ ucfirst(Auth::user()->role) }}</span>
                                 @endif
                             </div>
                             <a href="{{ route('profile.edit') }}"
@@ -132,29 +121,22 @@
                     </div>
                 </div>
             </div>
-
             <div class="bg-white p-6 md:p-8 rounded-lg shadow-md">
                 {{ $slot }}
             </div>
-
             @if (session('success'))
                 <x-toast type="success" :message="session('success')" />
             @endif
-
             @if (session('error'))
                 <x-toast type="error" :message="session('error')" />
             @endif
-
             @if (session('info'))
                 <x-toast type="info" :message="session('info')" />
             @endif
-
             <footer class="text-center text-gray-500 mt-8 py-4 shrink-0">
                 Made & Design with <span class="text-red-500">❤</span>
             </footer>
         </main>
-
-
     </div>
     @stack('scripts')
 </body>

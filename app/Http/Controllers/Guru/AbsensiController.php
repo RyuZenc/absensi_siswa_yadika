@@ -15,33 +15,49 @@ use App\Exports\AbsensiHarianGuruExport;
 
 class AbsensiController extends Controller
 {
-    // Menampilkan jadwal guru hari ini
     public function dashboard()
     {
-        $hariIni = Carbon::now()->isoFormat('dddd');
-        $guru = Auth::user()->guru;
-        $jadwals = Jadwal::where('guru_id', $guru->id)
-            ->where('hari', $hariIni)
-            ->orderBy('jam_mulai', 'asc')
-            ->get();
+        try {
+            $hariIni = Carbon::now()->isoFormat('dddd');
+            $guru = Auth::user()->guru;
 
-        return view('guru.dashboard', compact('jadwals'));
+            if (!$guru) {
+                return redirect()->route('login')->with('error', 'Data guru tidak ditemukan. Silakan hubungi administrator.');
+            }
+
+            $jadwals = Jadwal::where('guru_id', $guru->id)
+                ->where('hari', $hariIni)
+                ->orderBy('jam_mulai', 'asc')
+                ->get();
+
+            return view('guru.dashboard', compact('jadwals'));
+        } catch (\Exception $e) {
+            return redirect()->route('login')->with('error', 'Terjadi kesalahan saat memuat dashboard. Silakan login ulang.');
+        }
     }
-
     public function daftarKelas()
     {
-        $guruId = Auth::user()->guru->id;
+        try {
+            $guru = Auth::user()->guru;
 
-        $jadwals = Jadwal::with(['kelas', 'mapel'])
-            ->where('guru_id', $guruId)
-            ->orderBy('kelas_id')
-            ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu')")
-            ->get()
-            ->groupBy('kelas_id');
+            if (!$guru) {
+                return redirect()->route('login')->with('error', 'Data guru tidak ditemukan. Silakan hubungi administrator.');
+            }
 
-        return view('guru.kelas.index', compact('jadwals'));
+            $guruId = $guru->id;
+
+            $jadwals = Jadwal::with(['kelas', 'mapel'])
+                ->where('guru_id', $guruId)
+                ->orderBy('kelas_id')
+                ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu')")
+                ->get()
+                ->groupBy('kelas_id');
+
+            return view('guru.kelas.index', compact('jadwals'));
+        } catch (\Exception $e) {
+            return redirect()->route('guru.dashboard')->with('error', 'Terjadi kesalahan saat memuat daftar kelas.');
+        }
     }
-
     public function show(Jadwal $jadwal)
     {
         $tanggalHariIni = Carbon::today()->toDateString();
@@ -55,24 +71,20 @@ class AbsensiController extends Controller
                 'berlaku_hingga' => Carbon::parse($tanggalHariIni . ' ' . $jadwal->jam_selesai),
             ]
         );
-
         $siswas = $jadwal->kelas->siswas()->orderBy('nama_lengkap')->get();
         $absensiSudahAda = Absensi::where('sesi_absen_id', $sesiAbsen->id)
             ->pluck('status', 'siswa_id');
-
         $absensiCounts = [
             'hadir' => 0,
             'sakit' => 0,
             'izin' => 0,
             'alpha' => 0,
         ];
-
         foreach ($absensiSudahAda as $status) {
             if (isset($absensiCounts[$status])) {
                 $absensiCounts[$status]++;
             }
         }
-
         return view('guru.absensi.show', compact(
             'jadwal',
             'sesiAbsen',
@@ -80,39 +92,31 @@ class AbsensiController extends Controller
             'absensiSudahAda',
             'absensiCounts'
         ));
-
         return view('guru.absensi.show', compact('jadwal', 'sesiAbsen', 'siswas', 'absensiSudahAda'));
     }
-
     public function createCode(Request $request, SesiAbsen $sesiAbsen)
     {
         $request->validate([
             'durasi' => 'required|integer|min:1|max:60',
         ]);
-
         $batasWaktuMaksimum = Carbon::parse($sesiAbsen->tanggal . ' ' . $sesiAbsen->jadwal->jam_selesai)->addMinutes(60);
         if (now()->greaterThan($batasWaktuMaksimum)) {
             return back()->with('error', 'Anda sudah terlalu lama dari jadwal. Tidak disarankan membuat kode absen.');
         }
-
         $durasiMenit = (int) $request->input('durasi');
         $waktuBerlaku = now()->addMinutes($durasiMenit);
-
         $sesiAbsen->update([
             'kode_absen' => Str::upper(Str::random(6)),
             'berlaku_hingga' => $waktuBerlaku,
         ]);
-
         return back()->with('success', "Kode absensi berhasil dibuat dan berlaku hingga {$waktuBerlaku->format('H:i')}.");
     }
-
     public function storeManual(Request $request, SesiAbsen $sesiAbsen)
     {
         $request->validate([
             'absensi' => 'required|array',
             'absensi.*' => 'in:hadir,sakit,izin,alpha'
         ]);
-
         foreach ($request->absensi as $siswaId => $status) {
             Absensi::updateOrCreate(
                 [
@@ -125,27 +129,19 @@ class AbsensiController extends Controller
                 ]
             );
         }
-
         return redirect()->back()->with('success', 'Absensi berhasil disimpan.');
     }
-
     public function export($sesiAbsenId)
     {
         $sesi = SesiAbsen::with('jadwal.mapel', 'jadwal.kelas')->findOrFail($sesiAbsenId);
-
         $tingkat = $sesi->jadwal->kelas->tingkat;
         $namaKelas = $sesi->jadwal->kelas->nama_kelas;
         $mapel = $sesi->jadwal->mapel->nama_mapel;
         $tanggal = \Carbon\Carbon::parse($sesi->tanggal)->format('Y-m-d');
-
         $fileName = "Absensi_{$tingkat}-{$namaKelas}_{$mapel}_{$tanggal}.xlsx";
-
         $fileName = str_replace(' ', '_', $fileName);
-
         return Excel::download(new AbsensiHarianGuruExport($sesiAbsenId), $fileName);
     }
-
-
     public function updateStatus(Request $request)
     {
         $request->validate([
@@ -153,7 +149,6 @@ class AbsensiController extends Controller
             'sesi_absen_id' => 'required|exists:sesi_absens,id',
             'status' => 'required|in:hadir,sakit,izin,alpha',
         ]);
-
         $tanggal = SesiAbsen::where('id', $request->sesi_absen_id)->value('tanggal');
         $absensi = Absensi::updateOrCreate(
             [
@@ -165,40 +160,42 @@ class AbsensiController extends Controller
                 'tanggal' => $tanggal,
             ]
         );
-
         return response()->json(['success' => true, 'data' => $absensi]);
     }
-
     public function riwayat()
     {
-        $guru = Auth::user()->guru;
+        try {
+            $guru = Auth::user()->guru;
 
-        $sesiAbsens = SesiAbsen::with(['jadwal.mapel', 'jadwal.kelas'])
-            ->whereHas('jadwal', fn($q) => $q->where('guru_id', $guru->id))
-            ->orderByDesc('tanggal')
-            ->get();
+            if (!$guru) {
+                return redirect()->route('login')->with('error', 'Data guru tidak ditemukan. Silakan hubungi administrator.');
+            }
 
-        return view('guru.riwayat.riwayat', compact('sesiAbsens'));
+            $sesiAbsens = SesiAbsen::with(['jadwal.mapel', 'jadwal.kelas'])
+                ->whereHas('jadwal', fn($q) => $q->where('guru_id', $guru->id))
+                ->orderByDesc('tanggal')
+                ->get();
+
+            return view('guru.riwayat.riwayat', compact('sesiAbsens'));
+        } catch (\Exception $e) {
+            return redirect()->route('guru.dashboard')->with('error', 'Terjadi kesalahan saat memuat riwayat absensi.');
+        }
     }
-
     public function detail($id)
     {
         $sesi = SesiAbsen::with(['jadwal.mapel', 'jadwal.kelas', 'absensis.siswa'])
             ->findOrFail($id);
-
         $absensiCounts = [
             'hadir' => 0,
             'sakit' => 0,
             'izin' => 0,
             'alpha' => 0,
         ];
-
         foreach ($sesi->absensis as $absen) {
             if (isset($absensiCounts[$absen->status])) {
                 $absensiCounts[$absen->status]++;
             }
         }
-
         return view('guru.riwayat.detail', compact('sesi', 'absensiCounts'));
     }
 }

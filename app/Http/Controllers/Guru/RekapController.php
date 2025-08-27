@@ -16,74 +16,91 @@ class RekapController extends Controller
 {
     public function index(Request $request)
     {
-        $guru = Auth::user()->guru;
+        try {
+            $guru = Auth::user()->guru;
 
-        $jadwals = Jadwal::where('guru_id', $guru->id)->with(['mapel', 'kelas'])->get();
-
-        $mapels = $jadwals->map->mapel->unique('id')->sortBy('nama_mapel');
-        $kelasList = $jadwals->map->kelas->unique('id')->sortBy('nama_kelas');
-
-        $rekapData = [];
-        $dates = [];
-        $summary = [];
-        $filterInfo = [];
-        $selectedKelas = null;
-
-        if ($request->has('filter')) {
-            $validated = $this->validateRequest($request);
-            list($startDate, $endDate) = $this->resolveDateRange($validated['range'], $request);
-
-            if ($startDate && $endDate) {
-                $result = $this->getRekapData($guru->id, $validated['kelas_id'], $validated['mapel_id'], $startDate, $endDate);
-                $rekapData = $result['students'];
-                $dates = $result['dates'];
-                $summary = $result['summary'];
-                $selectedKelas = $kelasList->firstWhere('id', $validated['kelas_id']);
-
-                $filterInfo = [
-                    'mapel' => $mapels->find($validated['mapel_id'])->nama_mapel,
-                    'kelas' => $selectedKelas,
-                    'guru' => $guru->nama_lengkap,
-                    'periode' => $startDate->isoFormat('D MMMM Y') . ' - ' . $endDate->isoFormat('D MMMM Y'),
-                ];
+            if (!$guru) {
+                return redirect()->route('login')->with('error', 'Data guru tidak ditemukan. Silakan hubungi administrator.');
             }
-        }
 
-        return view('guru.rekap.index', [
-            'mapels' => $mapels,
-            'kelasList' => $kelasList,
-            'rekapData' => $rekapData,
-            'dates' => $dates,
-            'summary' => $summary,
-            'filterInfo' => $filterInfo,
-            'inputs' => $request->all(),
-        ]);
+            $jadwals = Jadwal::where('guru_id', $guru->id)->with(['mapel', 'kelas'])->get();
+
+            $mapels = $jadwals->map->mapel->unique('id')->sortBy('nama_mapel');
+            $kelasList = $jadwals->map->kelas->unique('id')->sortBy('nama_kelas');
+
+            $rekapData = [];
+            $dates = [];
+            $summary = [];
+            $filterInfo = [];
+            $selectedKelas = null;
+
+            if ($request->has('filter')) {
+                $validated = $this->validateRequest($request);
+                list($startDate, $endDate) = $this->resolveDateRange($validated['range'], $request);
+
+                if ($startDate && $endDate) {
+                    $result = $this->getRekapData($guru->id, $validated['kelas_id'], $validated['mapel_id'], $startDate, $endDate);
+                    $rekapData = $result['students'];
+                    $dates = $result['dates'];
+                    $summary = $result['summary'];
+                    $selectedKelas = $kelasList->firstWhere('id', $validated['kelas_id']);
+
+                    $filterInfo = [
+                        'mapel' => $mapels->find($validated['mapel_id'])->nama_mapel,
+                        'kelas' => $selectedKelas,
+                        'guru' => $guru->nama_lengkap,
+                        'periode' => $startDate->isoFormat('D MMMM Y') . ' - ' . $endDate->isoFormat('D MMMM Y'),
+                    ];
+                }
+            }
+
+            return view('guru.rekap.index', [
+                'mapels' => $mapels,
+                'kelasList' => $kelasList,
+                'rekapData' => $rekapData,
+                'dates' => $dates,
+                'summary' => $summary,
+                'filterInfo' => $filterInfo,
+                'inputs' => $request->all(),
+            ]);
+        } catch (\Exception $e) {
+            return redirect()->route('guru.dashboard')->with('error', 'Terjadi kesalahan saat memuat data rekap absensi.');
+        }
     }
 
     public function export(Request $request)
     {
-        $validated = $this->validateRequest($request);
-        $guru = Auth::user()->guru;
-        list($startDate, $endDate) = $this->resolveDateRange($validated['range'], $request);
+        try {
+            $validated = $this->validateRequest($request);
+            $guru = Auth::user()->guru;
 
-        $result = $this->getRekapData($guru->id, $validated['kelas_id'], $validated['mapel_id'], $startDate, $endDate);
+            if (!$guru) {
+                return redirect()->route('login')->with('error', 'Data guru tidak ditemukan. Silakan hubungi administrator.');
+            }
 
-        $jadwal = Jadwal::where('guru_id', $guru->id)
-            ->where('kelas_id', $validated['kelas_id'])
-            ->where('mapel_id', $validated['mapel_id'])
-            ->with(['mapel', 'kelas'])
-            ->firstOrFail();
+            list($startDate, $endDate) = $this->resolveDateRange($validated['range'], $request);
 
-        $filterInfo = [
-            'mapel' => $jadwal->mapel->nama_mapel,
-            'kelas' => $jadwal->kelas->tingkat . ' - ' . $jadwal->kelas->nama_kelas, // add this
-            'guru' => $guru->nama_lengkap,
-            'periode' => $startDate->isoFormat('D MMMM Y') . ' - ' . $endDate->isoFormat('D MMMM Y'),
-        ];
+            $result = $this->getRekapData($guru->id, $validated['kelas_id'], $validated['mapel_id'], $startDate, $endDate);
 
-        $filename = 'rekap-absensi-' . str_replace(' ', '_', $jadwal->kelas->nama_kelas) . '-' . now()->timestamp . '.xlsx';
+            $jadwal = Jadwal::where('guru_id', $guru->id)
+                ->where('kelas_id', $validated['kelas_id'])
+                ->where('mapel_id', $validated['mapel_id'])
+                ->with(['mapel', 'kelas'])
+                ->firstOrFail();
 
-        return Excel::download(new RekapAbsensiGuruExport($result, $filterInfo, $jadwal->kelas), $filename);
+            $filterInfo = [
+                'mapel' => $jadwal->mapel->nama_mapel,
+                'kelas' => $jadwal->kelas->tingkat . ' - ' . $jadwal->kelas->nama_kelas, // add this
+                'guru' => $guru->nama_lengkap,
+                'periode' => $startDate->isoFormat('D MMMM Y') . ' - ' . $endDate->isoFormat('D MMMM Y'),
+            ];
+
+            $filename = 'rekap-absensi-' . str_replace(' ', '_', $jadwal->kelas->nama_kelas) . '-' . now()->timestamp . '.xlsx';
+
+            return Excel::download(new RekapAbsensiGuruExport($result, $filterInfo, $jadwal->kelas), $filename);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengekspor data rekap absensi.');
+        }
     }
 
     private function getRekapData($guruId, $kelasId, $mapelId, $startDate, $endDate)

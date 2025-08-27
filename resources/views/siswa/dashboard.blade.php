@@ -9,18 +9,22 @@
                 <h2 class="text-xl font-semibold mb-4">Jadwal Pelajaran Hari Ini</h2>
                 <div class="bg-gray-50 p-4 rounded-lg shadow-inner">
                     <ul class="space-y-3">
-                        {{-- Diasumsikan $jadwals dikirim dari controller --}}
                         @forelse ($jadwals ?? [] as $jadwal)
-                            <li class="flex justify-between items-center p-3 bg-white rounded-md shadow-sm">
-                                <div>
-                                    <p class="font-bold">{{ $jadwal->mapel->nama_mapel }}</p>
-                                    <p class="text-sm text-gray-600">{{ $jadwal->guru->nama_lengkap }}</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="font-mono text-sm">{{ date('H:i', strtotime($jadwal->jam_mulai)) }} -
-                                        {{ date('H:i', strtotime($jadwal->jam_selesai)) }}</p>
-                                </div>
-                            </li>
+                            @if ($jadwal && $jadwal->mapel && $jadwal->guru)
+                                <li class="flex justify-between items-center p-3 bg-white rounded-md shadow-sm">
+                                    <div>
+                                        <p class="font-bold">{{ $jadwal->mapel->nama_mapel }}</p>
+                                        <p class="text-sm text-gray-600">{{ $jadwal->guru->nama_lengkap }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-mono text-sm">
+                                            {{ $jadwal->jam_mulai ? date('H:i', strtotime($jadwal->jam_mulai)) : '-' }}
+                                            -
+                                            {{ $jadwal->jam_selesai ? date('H:i', strtotime($jadwal->jam_selesai)) : '-' }}
+                                        </p>
+                                    </div>
+                                </li>
+                            @endif
                         @empty
                             <li class="text-center text-gray-500 p-4">Tidak ada jadwal pelajaran hari ini.</li>
                         @endforelse
@@ -41,27 +45,30 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {{-- Diasumsikan $riwayatAbsensi dikirim dari controller --}}
                             @forelse ($riwayatAbsensi ?? [] as $absensi)
-                                <tr class="border-b">
-                                    <td class="py-2 px-4">{{ $absensi->tanggal }}</td>
-                                    <td class="py-2 px-4">{{ $absensi->sesiAbsen->jadwal->mapel->nama_mapel }}</td>
-                                    <td class="py-2 px-4">
-                                        @if ($absensi->status == 'hadir')
-                                            <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Hadir</span>
-                                        @elseif($absensi->status == 'sakit')
-                                            <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Sakit</span>
-                                        @elseif($absensi->status == 'izin')
-                                            <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Izin</span>
-                                        @else
-                                            <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Alpha</span>
-                                        @endif
-                                    </td>
-                                </tr>
+                                @if ($absensi && $absensi->sesiAbsen && $absensi->sesiAbsen->jadwal && $absensi->sesiAbsen->jadwal->mapel)
+                                    <tr class="border-b">
+                                        <td class="py-2 px-4">
+                                            {{ $absensi->tanggal ? \Carbon\Carbon::parse($absensi->tanggal)->format('d/m/Y') : '-' }}
+                                        </td>
+                                        <td class="py-2 px-4">{{ $absensi->sesiAbsen->jadwal->mapel->nama_mapel }}</td>
+                                        <td class="py-2 px-4">
+                                            @if ($absensi->status == 'hadir')
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Hadir</span>
+                                            @elseif($absensi->status == 'sakit')
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Sakit</span>
+                                            @elseif($absensi->status == 'izin')
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Izin</span>
+                                            @else
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Alpha</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endif
                             @empty
                                 <tr>
                                     <td colspan="3" class="text-center py-4 text-gray-500">Belum ada riwayat absensi.

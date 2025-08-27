@@ -57,8 +57,12 @@ class JadwalController extends Controller
             return back()->withInput()->withErrors(['guru_id' => 'Guru sudah memiliki jadwal pada waktu tersebut.']);
         }
 
-        Jadwal::create($request->all());
-        return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal baru berhasil ditambahkan.');
+        try {
+            Jadwal::create($request->all());
+            return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal baru berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.jadwal.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     public function show(Jadwal $jadwal)
@@ -86,6 +90,8 @@ class JadwalController extends Controller
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
         ]);
 
+        // Hanya cek bentrok untuk guru, tidak untuk kelas
+        // Kelas diizinkan memiliki jadwal yang tumpang tindih untuk mata pelajaran agama
         $guruBentrok = Jadwal::where('guru_id', $request->guru_id)
             ->where('hari', $request->hari)
             ->where('id', '!=', $jadwal->id)
@@ -99,8 +105,12 @@ class JadwalController extends Controller
             return back()->withInput()->withErrors(['guru_id' => 'Guru sudah memiliki jadwal pada waktu tersebut.']);
         }
 
-        $jadwal->update($request->all());
-        return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil diperbarui.');
+        try {
+            $jadwal->update($request->all());
+            return redirect()->route('admin.jadwal.index')->with('success', 'Jadwal berhasil diperbarui.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.jadwal.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     public function destroy(Jadwal $jadwal)

@@ -99,7 +99,7 @@
             <a href="{{ route('guru.login') }}" class="btn btn-success btn-role w-100">
                 <i class="bi bi-person-badge-fill me-2"></i> Login Guru
             </a>
-            <a href="{{ route('admin.login') }}" class="btn btn-outline-primary btn-role w-100">
+            <a href="{{ route('admin.login') }}" class="btn btn-primary btn-role w-100">
                 <i class="bi bi-person-workspace me-2"></i> Login Admin
             </a>
         </div>

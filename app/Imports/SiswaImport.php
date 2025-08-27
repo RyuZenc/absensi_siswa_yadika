@@ -35,6 +35,21 @@ class SiswaImport implements ToModel, WithHeadingRow
 
     public function model(array $row)
     {
+        // Validasi basic data yang diperlukan
+        if (empty($row['nama_lengkap']) || empty($row['email']) || empty($row['nis']) || empty($row['nama_kelas'])) {
+            return null;
+        }
+
+        // Cek apakah email sudah ada
+        if (User::where('email', $row['email'])->exists()) {
+            return null;
+        }
+
+        // Cek apakah NIS sudah ada
+        if (Siswa::where('nis', $row['nis'])->exists()) {
+            return null;
+        }
+
         $kelasParts = explode(' - ', trim($row['nama_kelas']));
 
         if (count($kelasParts) !== 2) {
@@ -60,22 +75,26 @@ class SiswaImport implements ToModel, WithHeadingRow
         }
 
         $user = null;
-        DB::transaction(function () use ($row, $kelas, &$user) {
-            $user = User::create([
-                'name'     => $row['nama_lengkap'],
-                'email'    => $row['email'],
-                'password' => Hash::make($row['password']),
-                'role'     => 'siswa',
-            ]);
+        try {
+            DB::transaction(function () use ($row, $kelas, &$user) {
+                $user = User::create([
+                    'name'     => $row['nama_lengkap'],
+                    'email'    => $row['email'],
+                    'password' => Hash::make($row['password']),
+                    'role'     => 'siswa',
+                ]);
 
-            $user->siswa()->create([
-                'nama_lengkap' => $row['nama_lengkap'],
-                'nis'          => $row['nis'],
-                'kelas_id'     => $kelas->id,
-            ]);
+                $user->siswa()->create([
+                    'nama_lengkap' => $row['nama_lengkap'],
+                    'nis'          => $row['nis'],
+                    'kelas_id'     => $kelas->id,
+                ]);
 
-            $this->importedRowCount++;
-        });
+                $this->importedRowCount++;
+            });
+        } catch (\Exception $e) {
+            return null;
+        }
 
         return $user ? $user->siswa : null;
     }

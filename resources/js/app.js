@@ -1,4 +1,5 @@
 import "./bootstrap";
+import "./error-handler";
 import "./sorter";
 import "./clock";
 import "./sorter-jadwal";

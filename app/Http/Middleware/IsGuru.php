@@ -11,9 +11,14 @@ class IsGuru
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->role == 'guru') {
+        if (Auth::check() && Auth::user()->role == 'guru' && Auth::user()->guru) {
             return $next($request);
         }
+
+        if (Auth::check() && Auth::user()->role == 'guru' && !Auth::user()->guru) {
+            return redirect('/')->with('error', 'Data guru tidak ditemukan. Silakan hubungi administrator.');
+        }
+
         return redirect('/')->with('error', 'Akses Ditolak. Anda Bukan Guru.');
     }
 }

@@ -28,8 +28,7 @@ class SiswaController extends Controller
                         $userQuery->where('email', 'like', "%{$search}%");
                     })
                     ->orWhereHas('kelas', function ($kelasQuery) use ($search) {
-                        $kelasQuery->where(DB::raw("CONCAT(tingkat, ' - ', nama_kelas)"), 'like', "%{$search}%")
-                            ->orWhere('tingkat', 'like', "%{$search}%")
+                        $kelasQuery->where('tingkat', 'like', "%{$search}%")
                             ->orWhere('nama_kelas', 'like', "%{$search}%");
                     });
             });
@@ -47,7 +46,6 @@ class SiswaController extends Controller
         return view('admin.siswa.create', compact('kelas'));
     }
 
-
     public function store(Request $request)
     {
         $request->validate([
@@ -58,22 +56,26 @@ class SiswaController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::min(6)],
         ]);
 
-        DB::transaction(function () use ($request) {
-            $user = User::create([
-                'name' => $request->nama_lengkap,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => 'siswa',
-            ]);
+        try {
+            DB::transaction(function () use ($request) {
+                $user = User::create([
+                    'name' => $request->nama_lengkap,
+                    'email' => $request->email,
+                    'password' => Hash::make($request->password),
+                    'role' => 'siswa',
+                ]);
 
-            $user->siswa()->create([
-                'nama_lengkap' => $request->nama_lengkap,
-                'nis' => $request->nis,
-                'kelas_id' => $request->kelas_id
-            ]);
-        });
+                $user->siswa()->create([
+                    'nama_lengkap' => $request->nama_lengkap,
+                    'nis' => $request->nis,
+                    'kelas_id' => $request->kelas_id
+                ]);
+            });
 
-        return redirect()->route('admin.siswa.index')->with('success', 'Data siswa baru berhasil ditambahkan.');
+            return redirect()->route('admin.siswa.index')->with('success', 'Data siswa baru berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.siswa.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     public function edit(Siswa $siswa)
@@ -82,48 +84,58 @@ class SiswaController extends Controller
         return view('admin.siswa.edit', compact('siswa', 'kelas'));
     }
 
-
     public function update(Request $request, Siswa $siswa)
     {
         $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:255'],
             'nis' => ['required', 'string', 'max:255', 'unique:siswas,nis,' . $siswa->id],
             'kelas_id' => ['required', 'exists:kelas,id'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $siswa->user_id],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $siswa->user->id],
             'password' => ['nullable', 'confirmed', Rules\Password::min(6)],
         ]);
 
-        DB::transaction(function () use ($request, $siswa) {
-            $siswa->user()->update([
-                'name' => $request->nama_lengkap,
-                'email' => $request->email,
-            ]);
-
-            if ($request->filled('password')) {
+        try {
+            DB::transaction(function () use ($request, $siswa) {
                 $siswa->user()->update([
-                    'password' => Hash::make($request->password)
+                    'name' => $request->nama_lengkap,
+                    'email' => $request->email,
                 ]);
-            }
 
-            $siswa->update([
-                'nama_lengkap' => $request->nama_lengkap,
-                'nis' => $request->nis,
-                'kelas_id' => $request->kelas_id
-            ]);
-        });
+                if ($request->filled('password')) {
+                    $siswa->user()->update([
+                        'password' => Hash::make($request->password)
+                    ]);
+                }
 
-        return redirect()->route('admin.siswa.index')->with('success', 'Data siswa berhasil diperbarui.');
+                $siswa->update([
+                    'nama_lengkap' => $request->nama_lengkap,
+                    'nis' => $request->nis,
+                    'kelas_id' => $request->kelas_id
+                ]);
+            });
+
+            return redirect()->route('admin.siswa.index')->with('success', 'Data siswa berhasil diperbarui.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.siswa.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     public function destroy(Request $request, Siswa $siswa)
     {
-        DB::transaction(function () use ($siswa) {
-            $siswa->user()->delete();
-            $siswa->delete();
-        });
+        try {
+            DB::transaction(function () use ($siswa) {
+                // Hapus siswa terlebih dahulu untuk menjaga referential integrity
+                $user = $siswa->user;
+                $siswa->delete();
+                $user->delete();
+            });
 
-        return redirect()->route('admin.siswa.index', ['search' => $request->input('search')])
-            ->with('success', 'Data siswa berhasil dihapus.');
+            return redirect()->route('admin.siswa.index', ['search' => $request->input('search')])
+                ->with('success', 'Data siswa berhasil dihapus.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.siswa.index', ['search' => $request->input('search')])
+                ->with('error', 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage());
+        }
     }
 
     /**

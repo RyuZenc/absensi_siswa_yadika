@@ -39,9 +39,12 @@ class KelasController extends Controller
             'tingkat' => ['required', Rule::in($this->tingkatOptions)],
         ]);
 
-        Kelas::create($request->all());
-
-        return redirect()->route('admin.kelas.index')->with('success', 'Kelas baru berhasil ditambahkan.');
+        try {
+            Kelas::create($request->all());
+            return redirect()->route('admin.kelas.index')->with('success', 'Kelas baru berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.kelas.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
 
@@ -67,17 +70,25 @@ class KelasController extends Controller
             'tingkat' => ['required', Rule::in($this->tingkatOptions)],
         ]);
 
-        $kela->update($request->all());
-
-        return redirect()->route('admin.kelas.index')->with('success', 'Data kelas berhasil diperbarui.');
+        try {
+            $kela->update($request->all());
+            return redirect()->route('admin.kelas.index')->with('success', 'Data kelas berhasil diperbarui.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.kelas.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     public function destroy(Kelas $kela)
     {
-        if ($kela->siswas()->count() > 0) {
-            return redirect()->route('admin.kelas.index')->with('error', 'Gagal menghapus. Masih ada siswa di kelas ini.');
+        try {
+            if ($kela->siswas()->count() > 0) {
+                return redirect()->route('admin.kelas.index')->with('error', 'Gagal menghapus. Masih ada siswa di kelas ini.');
+            }
+
+            $kela->delete();
+            return redirect()->route('admin.kelas.index')->with('success', 'Data kelas berhasil dihapus.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.kelas.index')->with('error', 'Terjadi kesalahan saat menghapus: ' . $e->getMessage());
         }
-        $kela->delete();
-        return redirect()->route('admin.kelas.index')->with('success', 'Data kelas berhasil dihapus.');
     }
 }

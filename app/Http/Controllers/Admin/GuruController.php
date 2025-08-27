@@ -19,8 +19,6 @@ class GuruController extends Controller
         $search = $request->input('search');
         $query = Guru::with('user');
 
-        $query = Guru::with('user');
-
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama_lengkap', 'like', "%{$search}%")
@@ -32,7 +30,7 @@ class GuruController extends Controller
             });
         }
 
-        $gurus = $query->orderBy('created_at', 'desc')->paginate(100);
+        $gurus = $query->orderBy('created_at', 'desc')->paginate(10);
         $gurus->appends(['search' => $search]);
 
         return view('admin.guru.index', compact('gurus', 'search'));
@@ -53,23 +51,27 @@ class GuruController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::min(6)],
         ]);
 
-        DB::transaction(function () use ($request) {
-            $user = User::create([
-                'name' => $request->nama_lengkap,
-                'username' => $request->username,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => 'guru',
-            ]);
+        try {
+            DB::transaction(function () use ($request) {
+                $user = User::create([
+                    'name' => $request->nama_lengkap,
+                    'username' => $request->username,
+                    'email' => $request->email,
+                    'password' => Hash::make($request->password),
+                    'role' => 'guru',
+                ]);
 
-            $user->guru()->create([
-                'nama_lengkap' => $request->nama_lengkap,
-                'kode_guru' => $request->kode_guru,
-                'role' => 'guru',
-            ]);
-        });
+                $user->guru()->create([
+                    'nama_lengkap' => $request->nama_lengkap,
+                    'kode_guru' => $request->kode_guru,
+                    'role' => 'guru',
+                ]);
+            });
 
-        return redirect()->route('admin.guru.index')->with('success', 'Data guru baru berhasil ditambahkan.');
+            return redirect()->route('admin.guru.index')->with('success', 'Data guru baru berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.guru.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     public function edit(Guru $guru)
@@ -82,42 +84,53 @@ class GuruController extends Controller
         $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:255'],
             'kode_guru' => ['required', 'string', 'max:255', 'unique:gurus,kode_guru,' . $guru->id],
-            'username' => ['nullable', 'string', 'max:255', 'unique:users,username,' . $guru->user_id, 'alpha_dash'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $guru->user_id],
+            'username' => ['nullable', 'string', 'max:255', 'unique:users,username,' . $guru->user->id, 'alpha_dash'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $guru->user->id],
             'password' => ['nullable', 'confirmed', Rules\Password::min(6)],
         ]);
 
-        DB::transaction(function () use ($request, $guru) {
-            $guru->user()->update([
-                'name' => $request->nama_lengkap,
-                'username' => $request->username,
-                'email' => $request->email,
-            ]);
-
-            if ($request->filled('password')) {
+        try {
+            DB::transaction(function () use ($request, $guru) {
                 $guru->user()->update([
-                    'password' => Hash::make($request->password)
+                    'name' => $request->nama_lengkap,
+                    'username' => $request->username,
+                    'email' => $request->email,
                 ]);
-            }
 
-            $guru->update([
-                'nama_lengkap' => $request->nama_lengkap,
-                'kode_guru' => $request->kode_guru,
-            ]);
-        });
+                if ($request->filled('password')) {
+                    $guru->user()->update([
+                        'password' => Hash::make($request->password)
+                    ]);
+                }
 
-        return redirect()->route('admin.guru.index')->with('success', 'Data guru berhasil diperbarui.');
+                $guru->update([
+                    'nama_lengkap' => $request->nama_lengkap,
+                    'kode_guru' => $request->kode_guru,
+                ]);
+            });
+
+            return redirect()->route('admin.guru.index')->with('success', 'Data guru berhasil diperbarui.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.guru.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     public function destroy(Request $request, Guru $guru)
     {
-        DB::transaction(function () use ($guru) {
-            $guru->user()->delete();
-            $guru->delete();
-        });
+        try {
+            DB::transaction(function () use ($guru) {
+                // Hapus guru terlebih dahulu untuk menjaga referential integrity
+                $user = $guru->user;
+                $guru->delete();
+                $user->delete();
+            });
 
-        return redirect()->route('admin.guru.index', ['search' => $request->input('search')])
-            ->with('success', 'Data guru berhasil dihapus.');
+            return redirect()->route('admin.guru.index', ['search' => $request->input('search')])
+                ->with('success', 'Data guru berhasil dihapus.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.guru.index', ['search' => $request->input('search')])
+                ->with('error', 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage());
+        }
     }
 
     public function import(Request $request)

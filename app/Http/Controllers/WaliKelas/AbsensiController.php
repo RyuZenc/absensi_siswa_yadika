@@ -15,61 +15,79 @@ class AbsensiController extends Controller
 {
     public function cekKelas(Request $request)
     {
-        $waliKelas = Auth::user()->guru;
-        $kelasDiampu = $waliKelas->kelasYangDiampu;
+        try {
+            $waliKelas = Auth::user()->guru;
 
-        if (!$kelasDiampu) {
-            return view('walikelas.cek_kelas', [
-                'kelasList' => collect(),
-                'sesiList' => collect(),
-                'tanggalDipilih' => null,
-            ])->with('error', 'Anda belum diampu untuk kelas manapun.');
+            if (!$waliKelas) {
+                return redirect()->route('login')->with('error', 'Data guru tidak ditemukan. Silakan hubungi administrator.');
+            }
+
+            $kelasDiampu = $waliKelas->kelasYangDiampu;
+
+            if (!$kelasDiampu) {
+                return view('walikelas.cek_kelas', [
+                    'kelasList' => collect(),
+                    'sesiList' => collect(),
+                    'tanggalDipilih' => null,
+                ])->with('error', 'Anda belum diampu untuk kelas manapun.');
+            }
+
+            $kelasList = collect([$kelasDiampu]);
+            $tanggalDipilih = $request->input('tanggal', date('Y-m-d'));
+
+            $sesiList = SesiAbsen::with(['absensis.siswa', 'jadwal.mapel'])
+                ->whereHas('jadwal', function ($query) use ($kelasDiampu) {
+                    $query->where('kelas_id', $kelasDiampu->id);
+                })
+                ->whereDate('tanggal', $tanggalDipilih)
+                ->get();
+
+            return view('walikelas.cek_kelas', compact('kelasList', 'sesiList', 'tanggalDipilih'));
+        } catch (\Exception $e) {
+            return redirect()->route('login')->with('error', 'Terjadi kesalahan saat memuat data kelas.');
         }
-
-        $kelasList = collect([$kelasDiampu]);
-        $tanggalDipilih = $request->input('tanggal', date('Y-m-d'));
-
-        $sesiList = SesiAbsen::with(['absensis.siswa', 'jadwal.mapel'])
-            ->whereHas('jadwal', function ($query) use ($kelasDiampu) {
-                $query->where('kelas_id', $kelasDiampu->id);
-            })
-            ->whereDate('tanggal', $tanggalDipilih)
-            ->get();
-
-        return view('walikelas.cek_kelas', compact('kelasList', 'sesiList', 'tanggalDipilih'));
     }
 
     public function export(Request $request)
     {
-        $waliKelas = Auth::user()->guru;
-        $kelasDiampu = $waliKelas->kelasYangDiampu;
+        try {
+            $waliKelas = Auth::user()->guru;
 
-        if (!$kelasDiampu) {
-            return redirect()->back()->with('error', 'Anda tidak mengampu kelas manapun.');
+            if (!$waliKelas) {
+                return redirect()->route('login')->with('error', 'Data guru tidak ditemukan. Silakan hubungi administrator.');
+            }
+
+            $kelasDiampu = $waliKelas->kelasYangDiampu;
+
+            if (!$kelasDiampu) {
+                return redirect()->back()->with('error', 'Anda tidak mengampu kelas manapun.');
+            }
+
+            $tanggal = $request->tanggal;
+            $kelasId = $request->kelas_id;
+
+            if (!$tanggal || !$kelasId) {
+                return redirect()->back()->with('error', 'Kelas dan tanggal diperlukan untuk ekspor.');
+            }
+
+            if ($kelasId != $kelasDiampu->id) {
+                return redirect()->back()->with('error', 'Anda tidak memiliki akses ke kelas yang diminta.');
+            }
+
+            $kelas = Kelas::find($kelasId);
+
+            if (!$kelas) {
+                return redirect()->back()->with('error', 'Kelas tidak ditemukan.');
+            }
+
+            $namaFile = 'Laporan Absensi Harian - ' . $kelas->tingkat . '-' . $kelas->nama_kelas . ' - ' . $tanggal . '.xlsx';
+
+            return Excel::download(
+                new LaporanHarianWalikelas($kelasId, $tanggal),
+                $namaFile
+            );
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengekspor data absensi.');
         }
-
-        $tanggal = $request->tanggal;
-        $kelasId = $request->kelas_id;
-
-        if (!$tanggal || !$kelasId) {
-            return redirect()->back()->with('error', 'Kelas dan tanggal diperlukan untuk ekspor.');
-        }
-
-        if ($kelasId != $kelasDiampu->id) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses ke kelas yang diminta.');
-        }
-
-        $kelas = Kelas::find($kelasId);
-
-        if (!$kelas) {
-            return redirect()->back()->with('error', 'Kelas tidak ditemukan.');
-        }
-
-        $namaFile = 'Laporan Absensi Harian - ' . $kelas->tingkat . '-' . $kelas->nama_kelas . ' - ' . $tanggal . '.xlsx';
-
-        return Excel::download(
-            new LaporanHarianWalikelas($kelasId, $tanggal),
-            $namaFile
-        );
     }
 }

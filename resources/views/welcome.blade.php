@@ -112,6 +112,19 @@
                 <li>Absensi hanya bisa dilakukan pada jam yang telah ditentukan.</li>
             </ul>
         </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div style="max-width: 1200px; margin: 0 auto; padding: 20px; text-align: center;">
+            <p style="color: #40536DFF; font-size: 14px; margin: 0;">
+                © {{ date('Y') }} Copyright
+                <span style="color: rgb(144, 169, 192); font-weight: 600;">SMA Yadika Jambi</span>
+            </p>
+        </div>
+    </footer>
+
 </body>
 
 </html>

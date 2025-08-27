@@ -40,7 +40,7 @@
                     <i class="bi bi-record-circle text-xl text-indigo-300"></i>
                 </button>
             </div>
-            <nav class="mt-10 space-y-2 flex-col gap-y-2 overflow-y-auto overflow-x-hidden scrollbar-thin-dark">
+            <nav class="mt-2 space-y-2 flex-col gap-y-2 overflow-y-auto overflow-x-hidden scrollbar-thin-dark">
                 @auth
                     @if (Auth::user()->role === 'admin')
                         <x-sidebar.admin />
